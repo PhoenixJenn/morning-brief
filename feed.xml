@@ -17,5 +17,13 @@
       <guid isPermaLink="false">f86a59c0573d2c0f0fa12018dc9e54e7</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Monday, May 18</title>
+      <pubDate>Mon, 18 May 2026 15:40:46 +0000</pubDate>
+      <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/brief-2026-05-18.mp3" length="19524960" type="audio/mpeg"/>
+      <guid isPermaLink="false">ebd309bc91cb530964c652887781e641</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
