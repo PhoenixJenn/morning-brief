@@ -1,0 +1,308 @@
+#!/usr/bin/env python3
+"""
+Morning Brief — AI-curated daily news briefing for Jenn
+Fetches RSS feeds, curates with Claude, converts to audio, publishes as podcast.
+"""
+
+import re
+import os
+import hashlib
+import subprocess
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+import feedparser
+import anthropic
+
+# ─── Configuration ────────────────────────────────────────────────────────────
+
+PROJECT_DIR = Path(__file__).parent
+OUTPUT_DIR  = PROJECT_DIR / "output"
+RSS_FILE    = PROJECT_DIR / "feed.xml"
+
+PODCAST_TITLE       = "Jenn's Morning Brief"
+PODCAST_DESCRIPTION = "AI-curated daily tech briefing — spatial computing, AI, XR, media, and more."
+GITHUB_PAGES_URL    = "https://PhoenixJenn.github.io/morning-brief"
+
+TARGET_WORDS  = 6500   # ~45 min at 145 wpm
+LOOKBACK_HRS  = 26     # slightly more than 24 to catch late-night posts
+MAX_PER_FEED  = 6      # max articles pulled per feed
+TTS_VOICE     = "Samantha"   # upgrade to "Ava (Enhanced)" after downloading in System Settings
+TTS_RATE      = 175          # words per minute
+
+# ─── RSS Feeds by Topic ───────────────────────────────────────────────────────
+
+FEEDS = {
+    "General Tech & Industry": [
+        "https://techcrunch.com/feed/",
+        "https://www.theverge.com/rss/index.xml",
+        "https://feeds.arstechnica.com/arstechnica/index",
+        "https://www.engadget.com/rss.xml",
+        "https://thenextweb.com/feed/",
+        "https://www.cnet.com/rss/news/",
+        "https://www.digitaltrends.com/feed/",
+        "https://feeds.macrumors.com/MacRumors-All",
+        "https://www.macworld.com/feed",
+        "https://9to5mac.com/feed/",
+        "https://appleinsider.com/rss/news/",
+        "https://www.slashgear.com/feed/",
+        "https://www.techradar.com/rss",
+        "https://slashdot.org/rss/slashdot.rss",
+        "https://www.forbes.com/innovation/feed/",
+        "https://mashable.com/feeds/rss/all",
+    ],
+    "AI & Machine Learning": [
+        "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "https://www.theverge.com/ai-artificial-intelligence/rss/index.xml",
+        "https://www.technologyreview.com/feed/",
+        "https://openai.com/news/rss.xml",
+        "https://aws.amazon.com/blogs/machine-learning/feed/",
+        "https://9to5google.com/feed/",
+        "https://www.androidauthority.com/feed/",
+        "https://spectrum.ieee.org/feeds/feed.rss",
+    ],
+    "XR, Spatial Computing & Immersive Tech": [
+        "https://www.roadtovr.com/feed/",
+        "https://uploadvr.com/feed/",
+        "https://arinsider.co/feed/",
+        "https://www.sciencedaily.com/rss/computers_math/virtual_reality.xml",
+    ],
+    "3D Scanning, Printing & Spatial Internet": [
+        "https://spectrum.ieee.org/feeds/feed.rss",
+        "https://techcrunch.com/feed/",
+        "https://www.theverge.com/rss/index.xml",
+    ],
+    "Autonomous Vehicles & Robotics": [
+        "https://techcrunch.com/category/transportation/feed/",
+        "https://www.theverge.com/transportation/rss/index.xml",
+        "https://www.technologyreview.com/feed/",
+    ],
+    "Media & Entertainment": [
+        "https://techcrunch.com/category/media-entertainment/feed/",
+        "https://www.fiercevideo.com/rss/xml",
+        "https://www.theverge.com/entertainment/rss/index.xml",
+    ],
+}
+
+# ─── Fetch Articles ───────────────────────────────────────────────────────────
+
+def strip_html(text: str) -> str:
+    text = re.sub(r"<[^>]+>", " ", text)
+    return " ".join(text.split())
+
+def fetch_articles() -> dict:
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=LOOKBACK_HRS)
+    results = {}
+
+    for topic, urls in FEEDS.items():
+        articles = []
+        seen = set()
+
+        for url in urls:
+            try:
+                feed = feedparser.parse(url, agent="MorningBrief/1.0")
+                for entry in feed.entries[:MAX_PER_FEED]:
+                    title = entry.get("title", "").strip()
+                    if not title or title in seen:
+                        continue
+                    seen.add(title)
+
+                    raw = ""
+                    if hasattr(entry, "content"):
+                        raw = entry.content[0].value
+                    elif hasattr(entry, "summary"):
+                        raw = entry.summary
+
+                    summary = strip_html(raw)[:600]
+                    source  = feed.feed.get("title", url)
+
+                    articles.append({
+                        "title":   title,
+                        "summary": summary,
+                        "source":  source,
+                    })
+            except Exception as e:
+                print(f"    ⚠ Skipped {url}: {e}")
+
+        if articles:
+            results[topic] = articles
+            print(f"  ✓ {topic}: {len(articles)} articles")
+
+    return results
+
+# ─── Generate Briefing ────────────────────────────────────────────────────────
+
+def generate_briefing(articles: dict) -> str:
+    client = anthropic.Anthropic()
+
+    article_text = ""
+    for topic, items in articles.items():
+        article_text += f"\n\n## {topic}\n"
+        for a in items:
+            article_text += f"- **{a['title']}** ({a['source']})\n"
+            if a["summary"]:
+                article_text += f"  {a['summary']}\n"
+
+    today_pretty = datetime.now().strftime("%A, %B %d, %Y")
+
+    prompt = f"""You are writing a spoken audio news briefing for Jenn — a senior tech leader at Disney working in AI and spatial computing. She listens during her ~1 hour morning commute.
+
+Write this as natural spoken audio — not an article, not a list. She will hear this, not read it.
+
+TONE:
+- Smart, conversational, like a knowledgeable colleague catching you up
+- Get to the substance immediately — no "In today's fast-moving tech landscape..." filler
+- When relevant, connect dots between stories
+- Occasional dry wit is welcome
+- Treat her as a peer who already knows the basics
+
+STRUCTURE:
+- Open with: "Good morning Jenn. Here's your briefing for {today_pretty}."
+- Use natural verbal transitions between topics: "Moving to AI..." / "On the spatial computing front..." / "A few things in media and entertainment..."
+- Write approximately {TARGET_WORDS} words — this fills about 45 minutes at a comfortable listening pace
+- Close with: "That's your briefing. Have a great commute."
+
+TOPIC SECTIONS (cover each — weight toward AI and XR which are her core focus):
+1. General Tech & Industry — 3-4 top stories
+2. AI & Machine Learning — give this section the most depth; it's central to her work
+3. XR, Spatial Computing & Immersive Tech — important professionally; cover substantively
+4. 3D Scanning, Printing & Spatial Internet — include anything on Niantic Scaniverse, Creality, xTool, world models, digital twins, spatial internet
+5. Autonomous Vehicles & Robotics — 2-3 stories
+6. Media & Entertainment — 2-3 stories
+
+EDITORIAL RULES:
+- Skip rumors with no substance, listicles, and "X does something minor" non-stories
+- If a section had no meaningful news today, say so in one sentence and move on
+- Prioritize stories with real implications over press releases
+
+TODAY'S ARTICLES:
+{article_text}
+
+Write the full briefing script now:"""
+
+    print("  Calling Claude API...")
+    message = client.messages.create(
+        model="claude-opus-4-7",
+        max_tokens=8192,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return message.content[0].text
+
+# ─── Text-to-Speech ───────────────────────────────────────────────────────────
+
+def text_to_speech(text: str, base_path: Path) -> Path:
+    aiff_path = base_path.with_suffix(".aiff")
+    m4a_path  = base_path.with_suffix(".m4a")
+
+    print(f"  Running `say` — this takes a few minutes for 45 min of audio...")
+    result = subprocess.run(
+        ["say", "-v", TTS_VOICE, "-r", str(TTS_RATE), "-o", str(aiff_path), text],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"`say` failed: {result.stderr}")
+
+    print("  Converting to M4A...")
+    subprocess.run(
+        ["afconvert", "-f", "m4af", "-d", "aac", str(aiff_path), str(m4a_path)],
+        check=True,
+    )
+    aiff_path.unlink()
+    print(f"  ✓ Audio: {m4a_path.name}")
+    return m4a_path
+
+# ─── Podcast RSS Feed ─────────────────────────────────────────────────────────
+
+def update_podcast_feed(audio_path: Path, title: str):
+    pub_date  = datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0000")
+    file_size = audio_path.stat().st_size
+    audio_url = f"{GITHUB_PAGES_URL}/output/{audio_path.name}"
+    guid      = hashlib.md5(title.encode()).hexdigest()
+
+    new_item = f"""
+    <item>
+      <title>{title}</title>
+      <pubDate>{pub_date}</pubDate>
+      <enclosure url="{audio_url}" length="{file_size}" type="audio/x-m4a"/>
+      <guid isPermaLink="false">{guid}</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>"""
+
+    if RSS_FILE.exists():
+        content = RSS_FILE.read_text()
+        content = content.replace("</channel>", new_item + "\n  </channel>")
+    else:
+        content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>{PODCAST_TITLE}</title>
+    <description>{PODCAST_DESCRIPTION}</description>
+    <language>en-us</language>
+    <link>{GITHUB_PAGES_URL}</link>
+    <itunes:category text="Technology"/>
+    <itunes:explicit>false</itunes:explicit>
+    {new_item}
+  </channel>
+</rss>"""
+
+    RSS_FILE.write_text(content)
+    print(f"  ✓ RSS feed updated")
+
+# ─── Publish to GitHub ────────────────────────────────────────────────────────
+
+def push_to_github():
+    os.chdir(PROJECT_DIR)
+    today = datetime.now().strftime("%Y-%m-%d")
+    subprocess.run(["git", "add", "output/", "feed.xml"], check=True)
+    subprocess.run(["git", "commit", "-m", f"Morning brief {today}"], check=True)
+    subprocess.run(["git", "push"], check=True)
+    print("  ✓ Published to GitHub Pages")
+
+# ─── Main ─────────────────────────────────────────────────────────────────────
+
+def main():
+    today        = datetime.now().strftime("%Y-%m-%d")
+    today_pretty = datetime.now().strftime("%A, %B %d")
+    title        = f"Morning Brief — {today_pretty}"
+    audio_path   = OUTPUT_DIR / f"brief-{today}.m4a"
+
+    print(f"\n🎙  {title}")
+    print("=" * 52)
+
+    OUTPUT_DIR.mkdir(exist_ok=True)
+
+    if audio_path.exists():
+        print(f"  Brief for {today} already exists. Delete it to regenerate.")
+        return
+
+    print("\n📡  Fetching articles...")
+    articles = fetch_articles()
+
+    if not articles:
+        print("  No articles found. Check your network connection.")
+        return
+
+    print("\n✍️   Generating briefing with Claude...")
+    briefing = generate_briefing(articles)
+
+    transcript_path = OUTPUT_DIR / f"brief-{today}.txt"
+    transcript_path.write_text(briefing)
+    words = len(briefing.split())
+    print(f"  ✓ Transcript: {words:,} words (~{words // 145} min)")
+
+    print("\n🔊  Converting to audio...")
+    audio_path = text_to_speech(briefing, OUTPUT_DIR / f"brief-{today}")
+
+    print("\n📻  Updating podcast feed...")
+    update_podcast_feed(audio_path, title)
+
+    print("\n☁️   Publishing to GitHub...")
+    push_to_github()
+
+    print(f"\n✅  Done! Subscribe in Apple Podcasts:")
+    print(f"    {GITHUB_PAGES_URL}/feed.xml\n")
+
+if __name__ == "__main__":
+    main()
