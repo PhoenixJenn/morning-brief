@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Morning Brief — AI-curated daily news briefing for Jenn
+Morning Brief — AI-curated daily news briefing
 Fetches RSS feeds, curates with Claude, converts to audio, publishes as podcast.
 """
 
@@ -22,7 +22,7 @@ PROJECT_DIR = Path(__file__).parent
 OUTPUT_DIR  = PROJECT_DIR / "output"
 RSS_FILE    = PROJECT_DIR / "feed.xml"
 
-PODCAST_TITLE       = "Jenn's Morning Brief"
+PODCAST_TITLE       = "Morning Brief"
 PODCAST_DESCRIPTION = "AI-curated daily tech briefing — spatial computing, AI, XR, media, and more."
 GITHUB_PAGES_URL    = "https://PhoenixJenn.github.io/morning-brief"
 
@@ -169,7 +169,7 @@ TONE:
 - Treat her as a peer who already knows the basics
 
 STRUCTURE:
-- Open with: "Good morning Jenn. Here's your briefing for {today_pretty}."
+- Open with: "Good morning. Here's your briefing for {today_pretty}."
 - Use natural verbal transitions between topics: "Moving to AI..." / "On the spatial computing front..." / "A few things in media and entertainment..."
 - Write approximately {TARGET_WORDS} words — this is a firm target, not a suggestion. If a topic has limited news, go deeper on analysis and context rather than cutting length. The listener has a 45-minute commute and wants it filled.
 - Close with: "That's your briefing. Have a great commute."
