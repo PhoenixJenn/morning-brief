@@ -157,7 +157,7 @@ def generate_briefing(articles: dict) -> str:
 
     today_pretty = datetime.now().strftime("%A, %B %d, %Y")
 
-    prompt = f"""You are writing a spoken audio news briefing for Jenn — a senior tech leader at Disney working in AI and spatial computing. She listens during her ~1 hour morning commute.
+    prompt = f"""You are writing a spoken audio news briefing for a senior tech leader working in AI and spatial computing. She listens during her ~1 hour morning commute.
 
 Write this as natural spoken audio — not an article, not a list. She will hear this, not read it.
 
