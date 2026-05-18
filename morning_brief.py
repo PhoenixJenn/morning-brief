@@ -8,11 +8,13 @@ import re
 import os
 import hashlib
 import subprocess
+import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import feedparser
 import anthropic
+from openai import OpenAI
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 
@@ -24,11 +26,13 @@ PODCAST_TITLE       = "Jenn's Morning Brief"
 PODCAST_DESCRIPTION = "AI-curated daily tech briefing — spatial computing, AI, XR, media, and more."
 GITHUB_PAGES_URL    = "https://PhoenixJenn.github.io/morning-brief"
 
-TARGET_WORDS  = 6500   # ~45 min at 145 wpm
+TARGET_WORDS  = 7000   # ~48 min at 145 wpm — aim high so we land near 45
 LOOKBACK_HRS  = 26     # slightly more than 24 to catch late-night posts
-MAX_PER_FEED  = 6      # max articles pulled per feed
-TTS_VOICE     = "Samantha"   # upgrade to "Ava (Enhanced)" after downloading in System Settings
-TTS_RATE      = 175          # words per minute
+MAX_PER_FEED  = 10     # max articles pulled per feed
+TTS_VOICE     = "nova"    # OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
+TTS_MODEL     = "tts-1"  # tts-1 (~$13/mo daily) or tts-1-hd (higher quality, ~$26/mo)
+TTS_SPEED     = 1.4      # 1.0 = normal, 1.25 = slightly faster, 1.5 = fast
+OPENAI_CHUNK  = 4000     # OpenAI TTS max chars per request
 
 # ─── RSS Feeds by Topic ───────────────────────────────────────────────────────
 
@@ -72,10 +76,18 @@ FEEDS = {
         "https://techcrunch.com/feed/",
         "https://www.theverge.com/rss/index.xml",
     ],
-    "Autonomous Vehicles & Robotics": [
+    "Autonomous Vehicles, Robotics & Humanoid Robots": [
         "https://techcrunch.com/category/transportation/feed/",
+        "https://techcrunch.com/category/robotics/feed/",
         "https://www.theverge.com/transportation/rss/index.xml",
         "https://www.technologyreview.com/feed/",
+        "https://spectrum.ieee.org/feeds/feed.rss",
+    ],
+    "IoT & Connected Devices": [
+        "https://staceyoniot.com/feed/",
+        "https://iotanalytics.com/feed/",
+        "https://www.iotworldtoday.com/feed/",
+        "https://www.iotforall.com/feed",
     ],
     "Media & Entertainment": [
         "https://techcrunch.com/category/media-entertainment/feed/",
@@ -159,7 +171,7 @@ TONE:
 STRUCTURE:
 - Open with: "Good morning Jenn. Here's your briefing for {today_pretty}."
 - Use natural verbal transitions between topics: "Moving to AI..." / "On the spatial computing front..." / "A few things in media and entertainment..."
-- Write approximately {TARGET_WORDS} words — this fills about 45 minutes at a comfortable listening pace
+- Write approximately {TARGET_WORDS} words — this is a firm target, not a suggestion. If a topic has limited news, go deeper on analysis and context rather than cutting length. The listener has a 45-minute commute and wants it filled.
 - Close with: "That's your briefing. Have a great commute."
 
 TOPIC SECTIONS (cover each — weight toward AI and XR which are her core focus):
@@ -167,8 +179,9 @@ TOPIC SECTIONS (cover each — weight toward AI and XR which are her core focus)
 2. AI & Machine Learning — give this section the most depth; it's central to her work
 3. XR, Spatial Computing & Immersive Tech — important professionally; cover substantively
 4. 3D Scanning, Printing & Spatial Internet — include anything on Niantic Scaniverse, Creality, xTool, world models, digital twins, spatial internet
-5. Autonomous Vehicles & Robotics — 2-3 stories
-6. Media & Entertainment — 2-3 stories
+5. Autonomous Vehicles, Robotics & Humanoid Robots — 2-3 stories; humanoid robots (Figure, Tesla Optimus, Boston Dynamics, etc.) are of high interest
+6. IoT & Connected Devices — 2-3 stories; smart home, industrial IoT, connected devices
+7. Media & Entertainment — 2-3 stories
 
 EDITORIAL RULES:
 - Skip rumors with no substance, listicles, and "X does something minor" non-stories
@@ -190,26 +203,42 @@ Write the full briefing script now:"""
 
 # ─── Text-to-Speech ───────────────────────────────────────────────────────────
 
+def split_text(text: str, max_chars: int) -> list[str]:
+    """Split text into chunks at sentence boundaries."""
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    chunks, current = [], ""
+    for sentence in sentences:
+        if len(current) + len(sentence) + 1 <= max_chars:
+            current = (current + " " + sentence).strip()
+        else:
+            if current:
+                chunks.append(current)
+            current = sentence
+    if current:
+        chunks.append(current)
+    return chunks
+
 def text_to_speech(text: str, base_path: Path) -> Path:
-    aiff_path = base_path.with_suffix(".aiff")
-    m4a_path  = base_path.with_suffix(".m4a")
+    client   = OpenAI()
+    mp3_path = base_path.with_suffix(".mp3")
+    chunks   = split_text(text, OPENAI_CHUNK)
 
-    print(f"  Running `say` — this takes a few minutes for 45 min of audio...")
-    result = subprocess.run(
-        ["say", "-v", TTS_VOICE, "-r", str(TTS_RATE), "-o", str(aiff_path), text],
-        capture_output=True, text=True,
-    )
-    if result.returncode != 0:
-        raise RuntimeError(f"`say` failed: {result.stderr}")
+    print(f"  Converting {len(chunks)} chunks via OpenAI TTS ({TTS_VOICE})...")
+    audio_bytes = b""
+    for i, chunk in enumerate(chunks, 1):
+        print(f"    Chunk {i}/{len(chunks)}...", end="\r")
+        response = client.audio.speech.create(
+            model=TTS_MODEL,
+            voice=TTS_VOICE,
+            input=chunk,
+            response_format="mp3",
+            speed=TTS_SPEED,
+        )
+        audio_bytes += response.content
 
-    print("  Converting to M4A...")
-    subprocess.run(
-        ["afconvert", "-f", "m4af", "-d", "aac", str(aiff_path), str(m4a_path)],
-        check=True,
-    )
-    aiff_path.unlink()
-    print(f"  ✓ Audio: {m4a_path.name}")
-    return m4a_path
+    mp3_path.write_bytes(audio_bytes)
+    print(f"\n  ✓ Audio: {mp3_path.name}")
+    return mp3_path
 
 # ─── Podcast RSS Feed ─────────────────────────────────────────────────────────
 
@@ -223,7 +252,7 @@ def update_podcast_feed(audio_path: Path, title: str):
     <item>
       <title>{title}</title>
       <pubDate>{pub_date}</pubDate>
-      <enclosure url="{audio_url}" length="{file_size}" type="audio/x-m4a"/>
+      <enclosure url="{audio_url}" length="{file_size}" type="audio/mpeg"/>
       <guid isPermaLink="false">{guid}</guid>
       <itunes:duration>2700</itunes:duration>
     </item>"""
@@ -266,7 +295,7 @@ def main():
     today        = datetime.now().strftime("%Y-%m-%d")
     today_pretty = datetime.now().strftime("%A, %B %d")
     title        = f"Morning Brief — {today_pretty}"
-    audio_path   = OUTPUT_DIR / f"brief-{today}.m4a"
+    audio_path   = OUTPUT_DIR / f"brief-{today}.mp3"
 
     print(f"\n🎙  {title}")
     print("=" * 52)
