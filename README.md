@@ -1,0 +1,163 @@
+# Morning Brief
+
+A personal AI news podcast that runs every morning before you wake up.
+
+Every day at 6:30am, this script fetches hundreds of RSS articles, has Claude write a spoken briefing tailored to your interests, converts it to audio via OpenAI TTS, and publishes it as a private podcast you can subscribe to in Apple Podcasts (or any podcast app).
+
+The result: a fresh 20-45 minute episode waiting in your feed every morning. No apps. No algorithms. No ads. Just the news you actually care about, in your chosen voice.
+
+---
+
+## How it works
+
+```
+RSS feeds → Claude (briefing script) → OpenAI TTS → MP3
+                                                       ↓
+                                         GitHub Pages (RSS feed)
+                                                       ↓
+                                         Apple Podcasts / Overcast / etc.
+```
+
+1. Pulls articles from ~30 RSS feeds across 7 topic categories
+2. Sends them to Claude with a prompt tuned for spoken audio (not lists, not articles)
+3. Splits the transcript and converts it to MP3 via OpenAI's TTS API
+4. Updates an RSS feed file and pushes everything to GitHub Pages
+5. Your podcast app picks it up automatically
+
+---
+
+## Prerequisites
+
+- Python 3.10+
+- An [Anthropic API key](https://console.anthropic.com/) (Claude)
+- An [OpenAI API key](https://platform.openai.com/) (text-to-speech)
+- A GitHub account with a public repo (for GitHub Pages hosting)
+- macOS with cron (for scheduled runs — Linux works too)
+
+**Estimated cost:** ~$1-2/day using Claude Opus + OpenAI TTS at standard pricing. Roughly $30-45/month for a daily 30-45 minute episode.
+
+---
+
+## Setup
+
+### 1. Clone and install dependencies
+
+```bash
+git clone https://github.com/YOURUSERNAME/morning-brief.git
+cd morning-brief
+pip3 install -r requirements.txt
+```
+
+### 2. Set your API keys
+
+Add both keys to your shell profile (`~/.zshrc` or `~/.bashrc`):
+
+```bash
+export ANTHROPIC_API_KEY="your-anthropic-key"
+export OPENAI_API_KEY="your-openai-key"
+```
+
+Then reload: `source ~/.zshrc`
+
+### 3. Create a GitHub repo and enable GitHub Pages
+
+1. Go to github.com → New repository → name it `morning-brief` → **Public**
+2. Push this project to it:
+
+```bash
+git remote add origin https://github.com/YOURUSERNAME/morning-brief.git
+git push -u origin main
+```
+
+3. In your repo: **Settings → Pages → Source: Deploy from branch → main → / (root)**
+
+Your feed will live at `https://YOURUSERNAME.github.io/morning-brief/feed.xml`
+
+### 4. Update the script with your GitHub URL
+
+Open `morning_brief.py` and update this line near the top:
+
+```python
+GITHUB_PAGES_URL = "https://YOURUSERNAME.github.io/morning-brief"
+```
+
+### 5. Customize your topic feeds
+
+The `FEEDS` dictionary in `morning_brief.py` defines what gets pulled. Edit it to match your interests — add, remove, or swap RSS URLs for any topic area.
+
+The default categories are: General Tech, AI & Machine Learning, XR & Spatial Computing, 3D Scanning & Printing, Autonomous Vehicles & Robotics, IoT, and Media & Entertainment.
+
+### 6. Customize the briefing prompt
+
+Around line 160 in `morning_brief.py`, there's a `prompt` that tells Claude how to write the briefing. Update it to describe your role, interests, and what you want emphasized. This is where the personalization lives.
+
+### 7. (Optional) Remove the personal log integration
+
+Lines 284-412 write a TLDR and action items to a separate personal notes directory. If you don't use that setup, you can safely remove the `parse_briefing`, `write_daily_log`, and `write_action_items` functions and their calls in `main()`.
+
+### 8. Test it
+
+```bash
+python3 morning_brief.py
+```
+
+First run takes 5-10 minutes (fetching + Claude API + TTS conversion for a long episode). You should see progress output as it goes.
+
+### 9. Subscribe in Apple Podcasts
+
+Once GitHub Pages is live (can take a few minutes after the first push):
+
+1. Open Apple Podcasts
+2. **File → Add a Show by URL**
+3. Paste: `https://YOURUSERNAME.github.io/morning-brief/feed.xml`
+
+### 10. Schedule it to run every morning
+
+```bash
+crontab -e
+```
+
+Add these lines (the first two pass your API keys into the cron environment):
+
+```
+ANTHROPIC_API_KEY=your-anthropic-key
+OPENAI_API_KEY=your-openai-key
+30 6 * * * /usr/bin/python3 /path/to/morning-brief/morning_brief.py >> /path/to/morning-brief/output/cron.log 2>&1
+```
+
+Change `30 6` to whatever time you want (24-hour format). The API keys must be set here explicitly — cron doesn't read your shell profile.
+
+---
+
+## Configuration options
+
+All tunable settings are at the top of `morning_brief.py`:
+
+| Setting | Default | Notes |
+|---|---|---|
+| `TARGET_WORDS` | 7000 | ~45 min at 1.4x speed. Lower for a shorter episode. |
+| `LOOKBACK_HRS` | 26 | How far back to pull articles. 26 catches late-night posts. |
+| `MAX_PER_FEED` | 10 | Max articles per RSS feed. |
+| `TTS_VOICE` | `nova` | OpenAI voices: `alloy`, `echo`, `fable`, `onyx`, `nova`, `shimmer` |
+| `TTS_MODEL` | `tts-1` | `tts-1-hd` is higher quality at ~2x the cost |
+| `TTS_SPEED` | 1.4 | 1.0 = normal pace. 1.4 fills a commute without feeling rushed. |
+
+---
+
+## Troubleshooting
+
+**Authentication error at runtime:** Your API keys aren't in the environment. Double-check `echo $ANTHROPIC_API_KEY` returns a value. In cron, set the keys explicitly at the top of your crontab (see step 10).
+
+**GitHub push fails:** Make sure the remote is set correctly: `git remote -v`. Also confirm GitHub Pages is enabled in your repo settings.
+
+**No articles showing up:** Some feeds block automated fetching. The script skips failures silently — this is normal. Check the feed URLs work in a browser.
+
+**Episode already exists:** The script won't overwrite an existing episode. Delete `output/brief-YYYY-MM-DD.mp3` to regenerate.
+
+**Cron ran but nothing happened:** Check `output/cron.log` for error output.
+
+---
+
+## License
+
+MIT. Build your own, make it yours.
