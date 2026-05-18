@@ -1,5 +1,6 @@
 output/cron.log
 output/*.txt
+output/*-actions.md
 __pycache__/
 *.pyc
 .DS_Store

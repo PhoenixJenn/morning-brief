@@ -279,6 +279,138 @@ def update_podcast_feed(audio_path: Path, title: str):
     RSS_FILE.write_text(content)
     print(f"  ✓ RSS feed updated")
 
+# ─── Parse Briefing → TLDR + Action Items ────────────────────────────────────
+
+CLAUDE_PROJECTS_DIR = Path("/Users/jennlee/Projects/claude_projects")
+DAILY_LOG_DIR       = CLAUDE_PROJECTS_DIR / "context" / "daily"
+TODO_PATH           = CLAUDE_PROJECTS_DIR / "context" / "TODO.md"
+
+def parse_briefing(briefing: str, today: str, today_pretty: str) -> dict:
+    """Extract TLDR and action items from the briefing via Claude."""
+    client = anthropic.Anthropic()
+
+    prompt = f"""Read this morning news briefing and extract two things:
+
+1. A TLDR — 8 to 12 bullet points covering the most important stories. Be specific and concrete. No vague summaries.
+
+2. Action items across these categories. Only include items that are genuinely actionable — skip anything vague:
+   - **Upcoming Events** — conferences, product launches, keynotes, release dates worth putting on the radar
+   - **Things to Try** — new features, tools, apps, or functionality worth testing (e.g. Meta's 2D-to-3D photo, a new AI tool, a product update)
+   - **Stories to Follow** — ongoing developments worth tracking over the next week or two
+   - **Blog Post Ideas** — angles worth writing about on a spatial computing / emerging tech blog
+   - **People & Companies to Watch** — names worth adding to a watchlist
+   - **Other** — anything actionable that doesn't fit above
+
+Format your response EXACTLY like this (use these exact headers):
+
+## TLDR
+- bullet
+- bullet
+
+## Action Items
+
+### Upcoming Events
+- item (source: where this came from)
+
+### Things to Try
+- item
+
+### Stories to Follow
+- item
+
+### Blog Post Ideas
+- item
+
+### People & Companies to Watch
+- item
+
+### Other
+- item
+
+If a category has nothing actionable, write "None today." under it.
+
+---
+
+BRIEFING:
+{briefing}"""
+
+    print("  Parsing briefing for action items...")
+    message = client.messages.create(
+        model="claude-opus-4-7",
+        max_tokens=2048,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return message.content[0].text
+
+def write_daily_log(tldr_and_actions: str, today: str, today_pretty: str):
+    """Append TLDR to today's daily log in claude_projects."""
+    log_path = DAILY_LOG_DIR / f"{today}.md"
+    today_full = datetime.now().strftime("%B %d, %Y")
+
+    # Extract just the TLDR section
+    lines = tldr_and_actions.split("\n")
+    tldr_lines = []
+    in_tldr = False
+    for line in lines:
+        if line.strip() == "## TLDR":
+            in_tldr = True
+            continue
+        if in_tldr and line.startswith("## "):
+            break
+        if in_tldr:
+            tldr_lines.append(line)
+    tldr = "\n".join(tldr_lines).strip()
+
+    entry = f"""
+---
+
+## Morning Brief TLDR — {today_pretty}
+
+{tldr}
+"""
+
+    if log_path.exists():
+        with open(log_path, "a") as f:
+            f.write(entry)
+        print(f"  ✓ TLDR appended to {log_path.name}")
+    else:
+        log_path.write_text(f"# Daily Log — {today_full}\n{entry}")
+        print(f"  ✓ Daily log created with TLDR: {log_path.name}")
+
+def write_action_items(tldr_and_actions: str, today: str, today_pretty: str):
+    """Append action items to claude_projects TODO.md."""
+    if not TODO_PATH.exists():
+        print(f"  ⚠ TODO.md not found at {TODO_PATH}")
+        return
+
+    # Extract everything after ## Action Items
+    action_block = ""
+    if "## Action Items" in tldr_and_actions:
+        action_block = tldr_and_actions.split("## Action Items", 1)[1].strip()
+
+    if not action_block:
+        print("  No action items to write.")
+        return
+
+    # Convert ### headers + bullets into flat TODO format
+    entry = f"\n### From Morning Brief — {today_pretty}\n"
+    for line in action_block.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("### "):
+            entry += f"\n**{stripped[4:]}**\n"
+        elif stripped.startswith("- ") and "None today" not in stripped:
+            entry += f"- [ ] {stripped[2:]}\n"
+
+    # Insert before the Rainy Day Projects section (or at end)
+    content = TODO_PATH.read_text()
+    if "## Rainy Day Projects" in content:
+        content = content.replace("## Rainy Day Projects", entry + "\n## Rainy Day Projects")
+    else:
+        content += entry
+
+    TODO_PATH.write_text(content)
+    print(f"  ✓ Action items written to TODO.md")
+
 # ─── Publish to GitHub ────────────────────────────────────────────────────────
 
 def push_to_github():
@@ -320,6 +452,15 @@ def main():
     transcript_path.write_text(briefing)
     words = len(briefing.split())
     print(f"  ✓ Transcript: {words:,} words (~{words // 145} min)")
+
+    print("\n🔍  Parsing briefing for TLDR + action items...")
+    parsed = parse_briefing(briefing, today, today_pretty)
+    parsed_path = OUTPUT_DIR / f"brief-{today}-actions.md"
+    parsed_path.write_text(parsed)
+
+    print("\n📓  Writing to daily log and TODO...")
+    write_daily_log(parsed, today, today_pretty)
+    write_action_items(parsed, today, today_pretty)
 
     print("\n🔊  Converting to audio...")
     audio_path = text_to_speech(briefing, OUTPUT_DIR / f"brief-{today}")
