@@ -6,6 +6,7 @@ Fetches RSS feeds, curates with Claude, converts to audio, publishes as podcast.
 
 import re
 import os
+import json
 import hashlib
 import subprocess
 import tempfile
@@ -18,9 +19,10 @@ from openai import OpenAI
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 
-PROJECT_DIR = Path(__file__).parent
-OUTPUT_DIR  = PROJECT_DIR / "output"
-RSS_FILE    = PROJECT_DIR / "feed.xml"
+PROJECT_DIR       = Path(__file__).parent
+OUTPUT_DIR        = PROJECT_DIR / "output"
+RSS_FILE          = PROJECT_DIR / "feed.xml"
+SEEN_TITLES_FILE  = OUTPUT_DIR / "seen-titles.json"
 
 PODCAST_TITLE       = "Morning Brief"
 PODCAST_DESCRIPTION = "AI-curated daily tech briefing — spatial computing, AI, XR, media, and more."
@@ -96,28 +98,40 @@ FEEDS = {
     ],
 }
 
+# ─── Seen-title deduplication ────────────────────────────────────────────────
+
+def load_seen_titles() -> set:
+    if SEEN_TITLES_FILE.exists():
+        return set(json.loads(SEEN_TITLES_FILE.read_text()))
+    return set()
+
+def save_seen_titles(seen: set):
+    OUTPUT_DIR.mkdir(exist_ok=True)
+    SEEN_TITLES_FILE.write_text(json.dumps(sorted(seen), indent=2))
+
 # ─── Fetch Articles ───────────────────────────────────────────────────────────
 
 def strip_html(text: str) -> str:
     text = re.sub(r"<[^>]+>", " ", text)
     return " ".join(text.split())
 
-def fetch_articles() -> dict:
+def fetch_articles(seen_titles: set) -> tuple[dict, set]:
     cutoff = datetime.now(timezone.utc) - timedelta(hours=LOOKBACK_HRS)
     results = {}
+    new_titles = set()
 
     for topic, urls in FEEDS.items():
         articles = []
-        seen = set()
+        seen_this_run = set()
 
         for url in urls:
             try:
                 feed = feedparser.parse(url, agent="MorningBrief/1.0")
                 for entry in feed.entries[:MAX_PER_FEED]:
                     title = entry.get("title", "").strip()
-                    if not title or title in seen:
+                    if not title or title in seen_this_run or title in seen_titles:
                         continue
-                    seen.add(title)
+                    seen_this_run.add(title)
 
                     raw = ""
                     if hasattr(entry, "content"):
@@ -133,6 +147,7 @@ def fetch_articles() -> dict:
                         "summary": summary,
                         "source":  source,
                     })
+                    new_titles.add(title)
             except Exception as e:
                 print(f"    ⚠ Skipped {url}: {e}")
 
@@ -140,7 +155,7 @@ def fetch_articles() -> dict:
             results[topic] = articles
             print(f"  ✓ {topic}: {len(articles)} articles")
 
-    return results
+    return results, new_titles
 
 # ─── Generate Briefing ────────────────────────────────────────────────────────
 
@@ -439,11 +454,14 @@ def main():
         return
 
     print("\n📡  Fetching articles...")
-    articles = fetch_articles()
+    seen_titles = load_seen_titles()
+    articles, new_titles = fetch_articles(seen_titles)
 
     if not articles:
         print("  No articles found. Check your network connection.")
         return
+
+    save_seen_titles(seen_titles | new_titles)
 
     print("\n✍️   Generating briefing with Claude...")
     briefing = generate_briefing(articles)
