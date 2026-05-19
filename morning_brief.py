@@ -23,12 +23,14 @@ PROJECT_DIR       = Path(__file__).parent
 OUTPUT_DIR        = PROJECT_DIR / "output"
 RSS_FILE          = PROJECT_DIR / "feed.xml"
 SEEN_TITLES_FILE  = OUTPUT_DIR / "seen-titles.json"
+EVENTS_FILE       = PROJECT_DIR / "events.json"
 
 PODCAST_TITLE       = "Morning Brief"
 PODCAST_DESCRIPTION = "AI-curated daily tech briefing — spatial computing, AI, XR, media, and more."
 GITHUB_PAGES_URL    = "https://PhoenixJenn.github.io/morning-brief"
 
 TARGET_WORDS  = 7000   # ~48 min at 145 wpm — aim high so we land near 45
+SPLIT_WORDS   = 8500   # split into Part 1 / Part 2 if briefing exceeds this
 LOOKBACK_HRS  = 26     # slightly more than 24 to catch late-night posts
 MAX_PER_FEED  = 10     # max articles pulled per feed
 TTS_VOICE     = "nova"    # OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
@@ -108,6 +110,37 @@ def load_seen_titles() -> set:
 def save_seen_titles(seen: set):
     OUTPUT_DIR.mkdir(exist_ok=True)
     SEEN_TITLES_FILE.write_text(json.dumps(sorted(seen), indent=2))
+
+# ─── Events ──────────────────────────────────────────────────────────────────
+
+def get_active_events(today: str) -> list:
+    """Return events whose coverage window includes today (1 day before start through 2 days after end)."""
+    if not EVENTS_FILE.exists():
+        return []
+    from datetime import date
+    today_dt = date.fromisoformat(today)
+    active = []
+    for event in json.loads(EVENTS_FILE.read_text()):
+        start = date.fromisoformat(event["start"]) - timedelta(days=1)
+        end   = date.fromisoformat(event.get("end", event["start"])) + timedelta(days=2)
+        if start <= today_dt <= end:
+            active.append(event)
+    return active
+
+def partition_articles(articles: dict, events: list) -> tuple[dict, dict]:
+    """Split articles into event-specific and regular buckets by keyword matching."""
+    keywords = [kw.lower() for e in events for kw in e.get("keywords", [])]
+    regular, event_articles = {}, {}
+    for topic, items in articles.items():
+        reg, evt = [], []
+        for item in items:
+            text = (item["title"] + " " + item.get("summary", "")).lower()
+            (evt if any(kw in text for kw in keywords) else reg).append(item)
+        if reg:
+            regular[topic] = reg
+        if evt:
+            event_articles[topic] = evt
+    return regular, event_articles
 
 # ─── Fetch Articles ───────────────────────────────────────────────────────────
 
@@ -215,6 +248,61 @@ Write the full briefing script now:"""
         messages=[{"role": "user", "content": prompt}],
     )
     return message.content[0].text
+
+# ─── Generate Special Brief ───────────────────────────────────────────────────
+
+def generate_special_brief(articles: dict, events: list, today_pretty: str) -> str:
+    client = anthropic.Anthropic()
+    event_names = ", ".join(e["name"] for e in events)
+
+    article_text = ""
+    for topic, items in articles.items():
+        article_text += f"\n\n## {topic}\n"
+        for a in items:
+            article_text += f"- **{a['title']}** ({a['source']})\n"
+            if a["summary"]:
+                article_text += f"  {a['summary']}\n"
+
+    prompt = f"""You are writing a Special Brief — a focused spoken audio episode covering breaking announcements from {event_names}.
+
+The listener is a senior tech leader in AI and spatial computing. She wants comprehensive coverage of everything announced — be thorough, specific, and concrete. Don't summarize; report.
+
+TONE: Smart, insider energy. Connect announcements to broader trends where it's obvious. Occasional dry wit welcome.
+
+STRUCTURE:
+- Open with: "This is your Special Brief for {event_names}, {today_pretty}."
+- Work through announcements category by category — group related things together
+- Be as long as the material demands. Do not cut news to fit a length target.
+- If something is minor, say so in one sentence and move on
+- Close with: "That's everything from {event_names}. Back to your regular brief."
+
+TODAY'S ARTICLES:
+{article_text}
+
+Write the full Special Brief now:"""
+
+    print(f"  Calling Claude API for Special Brief ({event_names})...")
+    message = client.messages.create(
+        model="claude-opus-4-7",
+        max_tokens=8192,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return message.content[0].text
+
+# ─── Split long briefings ─────────────────────────────────────────────────────
+
+def split_briefing(text: str) -> list[str]:
+    """Split a briefing into two halves at the nearest sentence boundary to the midpoint."""
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    total = len(text.split())
+    target, cumulative = total // 2, 0
+    split_at = len(sentences) // 2
+    for i, s in enumerate(sentences):
+        cumulative += len(s.split())
+        if cumulative >= target:
+            split_at = i + 1
+            break
+    return [" ".join(sentences[:split_at]), " ".join(sentences[split_at:])]
 
 # ─── Text-to-Speech ───────────────────────────────────────────────────────────
 
@@ -438,54 +526,98 @@ def push_to_github():
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
+def produce_episode(text: str, base_name: str, title: str):
+    """TTS a briefing (splitting into parts if long) and add to the feed. Returns audio paths."""
+    parts = split_briefing(text) if len(text.split()) > SPLIT_WORDS else [text]
+    paths = []
+    for i, part in enumerate(parts, 1):
+        suffix     = f"-part{i}" if len(parts) > 1 else ""
+        part_title = f"{title} (Part {i})" if len(parts) > 1 else title
+        audio      = text_to_speech(part, OUTPUT_DIR / f"{base_name}{suffix}")
+        update_podcast_feed(audio, part_title)
+        paths.append(audio)
+    return paths
+
 def main():
     today        = datetime.now().strftime("%Y-%m-%d")
     today_pretty = datetime.now().strftime("%A, %B %d")
     title        = f"Morning Brief — {today_pretty}"
-    audio_path   = OUTPUT_DIR / f"brief-{today}.mp3"
 
     print(f"\n🎙  {title}")
     print("=" * 52)
 
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    if audio_path.exists():
+    if (OUTPUT_DIR / f"brief-{today}.mp3").exists():
         print(f"  Brief for {today} already exists. Delete it to regenerate.")
         return
 
+    # Check for active events
+    active_events = get_active_events(today)
+    if active_events:
+        names = ", ".join(e["name"] for e in active_events)
+        print(f"\n🎪  Active events: {names}")
+
     print("\n📡  Fetching articles...")
     seen_titles = load_seen_titles()
-    articles, new_titles = fetch_articles(seen_titles)
+    all_articles, new_titles = fetch_articles(seen_titles)
 
-    if not articles:
+    if not all_articles:
         print("  No articles found. Check your network connection.")
         return
 
     save_seen_titles(seen_titles | new_titles)
 
-    print("\n✍️   Generating briefing with Claude...")
-    briefing = generate_briefing(articles)
+    # Partition articles on event days
+    if active_events:
+        regular_articles, event_articles = partition_articles(all_articles, active_events)
+        if event_articles:
+            total = sum(len(v) for v in event_articles.values())
+            print(f"  → {total} articles routed to Special Brief")
+    else:
+        regular_articles, event_articles = all_articles, {}
 
-    transcript_path = OUTPUT_DIR / f"brief-{today}.txt"
-    transcript_path.write_text(briefing)
-    words = len(briefing.split())
-    print(f"  ✓ Transcript: {words:,} words (~{words // 145} min)")
+    # ── Regular brief ──
+    if regular_articles:
+        print("\n✍️   Generating briefing with Claude...")
+        briefing = generate_briefing(regular_articles)
 
-    print("\n🔍  Parsing briefing for TLDR + action items...")
-    parsed = parse_briefing(briefing, today, today_pretty)
-    parsed_path = OUTPUT_DIR / f"brief-{today}-actions.md"
-    parsed_path.write_text(parsed)
+        (OUTPUT_DIR / f"brief-{today}.txt").write_text(briefing)
+        words = len(briefing.split())
+        print(f"  ✓ Transcript: {words:,} words (~{words // 145} min)")
+        if words > SPLIT_WORDS:
+            print(f"  ⚡ Over {SPLIT_WORDS:,} words — will split into two parts")
 
-    print("\n📓  Writing to daily log and TODO...")
-    write_daily_log(parsed, today, today_pretty)
-    write_action_items(parsed, today, today_pretty)
+        print("\n🔍  Parsing briefing for TLDR + action items...")
+        parsed = parse_briefing(briefing, today, today_pretty)
+        (OUTPUT_DIR / f"brief-{today}-actions.md").write_text(parsed)
 
-    print("\n🔊  Converting to audio...")
-    audio_path = text_to_speech(briefing, OUTPUT_DIR / f"brief-{today}")
+        print("\n📓  Writing to daily log and TODO...")
+        write_daily_log(parsed, today, today_pretty)
+        write_action_items(parsed, today, today_pretty)
 
-    print("\n📻  Updating podcast feed...")
-    update_podcast_feed(audio_path, title)
+        print("\n🔊  Converting to audio...")
+        produce_episode(briefing, f"brief-{today}", title)
 
+    # ── Special brief ──
+    if event_articles and active_events:
+        event_names = ", ".join(e["name"] for e in active_events)
+        special_title = f"Special Brief — {event_names}"
+        slug = active_events[0]["name"].lower().replace(" ", "-")[:24]
+
+        print(f"\n🎤  Generating Special Brief for {event_names}...")
+        special = generate_special_brief(event_articles, active_events, today_pretty)
+
+        (OUTPUT_DIR / f"special-{today}-{slug}.txt").write_text(special)
+        words = len(special.split())
+        print(f"  ✓ Special Brief: {words:,} words (~{words // 145} min)")
+        if words > SPLIT_WORDS:
+            print(f"  ⚡ Over {SPLIT_WORDS:,} words — will split into two parts")
+
+        print("\n🔊  Converting Special Brief to audio...")
+        produce_episode(special, f"special-{today}-{slug}", special_title)
+
+    print("\n📻  Feed updated")
     print("\n☁️   Publishing to GitHub...")
     push_to_github()
 

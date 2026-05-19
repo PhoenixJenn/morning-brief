@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Google I/O 2026",
+    "start": "2026-05-19",
+    "end": "2026-05-20",
+    "keywords": ["Google I/O", "Google IO", "Android XR", "Gemini", "Google developer"]
+  },
+  {
+    "name": "WWDC 2026",
+    "start": "2026-06-08",
+    "end": "2026-06-12",
+    "keywords": ["WWDC", "Apple developer", "visionOS", "iOS 20", "macOS 16"]
+  },
+  {
+    "name": "AWE USA 2026",
+    "start": "2026-06-17",
+    "end": "2026-06-19",
+    "keywords": ["AWE", "AWE USA", "Augmented World Expo"]
+  },
+  {
+    "name": "Samsung Galaxy Unpacked July 2026",
+    "start": "2026-07-22",
+    "end": "2026-07-22",
+    "keywords": ["Galaxy Unpacked", "Z Fold 8", "Flip 8", "Samsung smart glasses", "Samsung Unpacked"]
+  },
+  {
+    "name": "Meta Connect 2026",
+    "start": "2026-09-23",
+    "end": "2026-09-24",
+    "keywords": ["Meta Connect", "Quest 4", "Ray-Ban Meta", "Horizon OS", "Meta smart glasses"]
+  }
+]
