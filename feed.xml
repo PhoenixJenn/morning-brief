@@ -10,27 +10,25 @@
     <itunes:category text="Technology"/>
     <itunes:explicit>false</itunes:explicit>
     <item>
-      <title>Morning Brief — Monday, May 18</title>
-      <pubDate>Mon, 18 May 2026 15:40:46 +0000</pubDate>
-      <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/brief-2026-05-18.mp3" length="19524960" type="audio/mpeg"/>
-      <guid isPermaLink="false">ebd309bc91cb530964c652887781e641</guid>
-      <itunes:duration>2700</itunes:duration>
+      <title>Special Brief — Google I/O 2026, Tuesday, May 19</title>
+      <pubDate>Tue, 19 May 2026 13:30:00 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-05-19-google-io-2026.mp3" length="1680000" type="audio/mpeg"/>
+      <guid isPermaLink="false">special-2026-05-19-google-io-2026</guid>
+      <itunes:duration>900</itunes:duration>
     </item>
-  
     <item>
       <title>Morning Brief — Tuesday, May 19</title>
-      <pubDate>Tue, 19 May 2026 06:09:39 +0000</pubDate>
-      <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/brief-2026-05-19.mp3" length="22125120" type="audio/mpeg"/>
-      <guid isPermaLink="false">3a14de691410470f0ec574619bc97e53</guid>
-      <itunes:duration>2700</itunes:duration>
+      <pubDate>Tue, 19 May 2026 13:00:00 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-19.mp3" length="22125120" type="audio/mpeg"/>
+      <guid isPermaLink="false">morning-brief-2026-05-19</guid>
+      <itunes:duration>9180</itunes:duration>
     </item>
-  
     <item>
-      <title>Special Brief — Google I/O 2026</title>
-      <pubDate>Tue, 19 May 2026 06:20:53 +0000</pubDate>
-      <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/special-2026-05-19-google-io-2026.mp3" length="1680000" type="audio/mpeg"/>
-      <guid isPermaLink="false">028e97a56d7007a342ef85ad3574cd46</guid>
-      <itunes:duration>2700</itunes:duration>
+      <title>Morning Brief — Monday, May 18</title>
+      <pubDate>Mon, 18 May 2026 15:40:46 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-18.mp3" length="19524960" type="audio/mpeg"/>
+      <guid isPermaLink="false">morning-brief-2026-05-18</guid>
+      <itunes:duration>8100</itunes:duration>
     </item>
   </channel>
 </rss>
