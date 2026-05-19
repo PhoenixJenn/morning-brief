@@ -73,7 +73,10 @@ FEEDS = {
         "https://www.roadtovr.com/feed/",
         "https://uploadvr.com/feed/",
         "https://arinsider.co/feed/",
-        "https://www.sciencedaily.com/rss/computers_math/virtual_reality.xml",
+        "https://about.fb.com/news/feed/",
+        "https://9to5google.com/tag/android-xr/feed/",
+        "https://mixed-news.com/en/feed/",
+        "https://www.wareable.com/feed/",
     ],
     "3D Scanning, Printing & Spatial Internet": [
         "https://spectrum.ieee.org/feeds/feed.rss",
