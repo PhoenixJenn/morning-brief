@@ -58,6 +58,8 @@ FEEDS = {
         "https://slashdot.org/rss/slashdot.rss",
         "https://www.forbes.com/innovation/feed/",
         "https://mashable.com/feeds/rss/all",
+        "https://www.tomsguide.com/feeds/all",
+        "https://www.tomshardware.com/feeds/all",
     ],
     "AI & Machine Learning": [
         "https://techcrunch.com/category/artificial-intelligence/feed/",
