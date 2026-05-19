@@ -13,6 +13,8 @@ import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import boto3
+from botocore.config import Config
 import feedparser
 import anthropic
 from openai import OpenAI
@@ -28,6 +30,16 @@ EVENTS_FILE       = PROJECT_DIR / "events.json"
 PODCAST_TITLE       = "Morning Brief"
 PODCAST_DESCRIPTION = "AI-curated daily tech briefing — spatial computing, AI, XR, media, and more."
 GITHUB_PAGES_URL    = "https://PhoenixJenn.github.io/morning-brief"
+
+# ─── Cloudflare R2 (audio hosting) ───────────────────────────────────────────
+# Credentials come from env vars — add to crontab: R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+R2_ACCOUNT_ID  = "00b8f5d4c66b807a2396f13949ddc8ff"
+R2_BUCKET      = "morning-brief"
+R2_ENDPOINT    = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+# After enabling "Allow Public Access" on the bucket in the R2 dashboard,
+# paste the pub-XXXX.r2.dev URL here:
+R2_PUBLIC_URL  = "https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev"  # e.g. "https://pub-abc123.r2.dev"
+PURGE_DAYS     = 14    # delete R2 episodes and feed entries older than this
 
 TARGET_WORDS  = 7000   # ~48 min at 145 wpm — aim high so we land near 45
 SPLIT_WORDS   = 8500   # split into Part 1 / Part 2 if briefing exceeds this
@@ -347,12 +359,87 @@ def text_to_speech(text: str, base_path: Path) -> Path:
     print(f"\n  ✓ Audio: {mp3_path.name}")
     return mp3_path
 
+# ─── Cloudflare R2 upload + purge ────────────────────────────────────────────
+
+def purge_old_episodes():
+    """Delete R2 objects and feed.xml entries older than PURGE_DAYS days."""
+    cutoff  = datetime.now(timezone.utc) - timedelta(days=PURGE_DAYS)
+    date_re = re.compile(r'(\d{4}-\d{2}-\d{2})')
+
+    access_key = os.environ.get("R2_ACCESS_KEY_ID")
+    secret_key = os.environ.get("R2_SECRET_ACCESS_KEY")
+    if not (R2_PUBLIC_URL and access_key and secret_key):
+        return
+
+    s3 = boto3.client(
+        "s3",
+        endpoint_url=R2_ENDPOINT,
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key,
+        config=Config(signature_version="s3v4"),
+    )
+
+    purged_keys = set()
+    resp = s3.list_objects_v2(Bucket=R2_BUCKET, Prefix="output/")
+    for obj in resp.get("Contents", []):
+        key = obj["Key"]
+        m = date_re.search(key)
+        if m and datetime.fromisoformat(m.group(1)).replace(tzinfo=timezone.utc) < cutoff:
+            s3.delete_object(Bucket=R2_BUCKET, Key=key)
+            purged_keys.add(Path(key).name)
+            print(f"  🗑  Purged from R2: {key}")
+
+    if not purged_keys:
+        print(f"  ✓ Nothing to purge (all episodes within {PURGE_DAYS} days)")
+        return
+
+    if RSS_FILE.exists():
+        content = RSS_FILE.read_text()
+        parts   = re.split(r'(<item>.*?</item>)', content, flags=re.DOTALL)
+        removed = 0
+        filtered = []
+        for part in parts:
+            if part.startswith('<item>'):
+                url_match = re.search(r'url="([^"]+)"', part)
+                if url_match and Path(url_match.group(1)).name in purged_keys:
+                    removed += 1
+                    continue
+            filtered.append(part)
+        if removed:
+            RSS_FILE.write_text(''.join(filtered))
+            print(f"  ✓ Removed {removed} old entries from feed.xml")
+
+def upload_to_r2(path: Path) -> str:
+    """Upload an MP3 to Cloudflare R2. Returns the public URL (or GitHub Pages URL as fallback)."""
+    if not R2_PUBLIC_URL:
+        print("  ⚠ R2_PUBLIC_URL not set — skipping R2 upload, using GitHub Pages URL")
+        return f"{GITHUB_PAGES_URL}/output/{path.name}"
+
+    access_key = os.environ.get("R2_ACCESS_KEY_ID")
+    secret_key = os.environ.get("R2_SECRET_ACCESS_KEY")
+    if not access_key or not secret_key:
+        print("  ⚠ R2 credentials not in environment — skipping upload, using GitHub Pages URL")
+        return f"{GITHUB_PAGES_URL}/output/{path.name}"
+
+    s3 = boto3.client(
+        "s3",
+        endpoint_url=R2_ENDPOINT,
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key,
+        config=Config(signature_version="s3v4"),
+    )
+    key = f"output/{path.name}"
+    s3.upload_file(str(path), R2_BUCKET, key, ExtraArgs={"ContentType": "audio/mpeg"})
+    url = f"{R2_PUBLIC_URL}/{key}"
+    print(f"  ✓ Uploaded to R2: {url}")
+    return url
+
 # ─── Podcast RSS Feed ─────────────────────────────────────────────────────────
 
-def update_podcast_feed(audio_path: Path, title: str):
+def update_podcast_feed(audio_path: Path, title: str, audio_url: str = None):
     pub_date  = datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0000")
     file_size = audio_path.stat().st_size
-    audio_url = f"{GITHUB_PAGES_URL}/output/{audio_path.name}"
+    audio_url = audio_url or f"{GITHUB_PAGES_URL}/output/{audio_path.name}"
     guid      = hashlib.md5(title.encode()).hexdigest()
 
     new_item = f"""
@@ -523,7 +610,8 @@ def write_action_items(tldr_and_actions: str, today: str, today_pretty: str):
 def push_to_github():
     os.chdir(PROJECT_DIR)
     today = datetime.now().strftime("%Y-%m-%d")
-    subprocess.run(["git", "add", "output/", "feed.xml", "status.json"], check=True)
+    # MP3s live on R2 now — only push feed.xml and status.json
+    subprocess.run(["git", "add", "feed.xml", "status.json"], check=True)
     subprocess.run(["git", "commit", "-m", f"Morning brief {today}"], check=True)
     subprocess.run(["git", "push"], check=True)
     print("  ✓ Published to GitHub Pages")
@@ -531,14 +619,16 @@ def push_to_github():
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 def produce_episode(text: str, base_name: str, title: str):
-    """TTS a briefing (splitting into parts if long) and add to the feed. Returns audio paths."""
+    """TTS a briefing (splitting into parts if long), upload to R2, and add to the feed."""
     parts = split_briefing(text) if len(text.split()) > SPLIT_WORDS else [text]
     paths = []
     for i, part in enumerate(parts, 1):
         suffix     = f"-part{i}" if len(parts) > 1 else ""
         part_title = f"{title} (Part {i})" if len(parts) > 1 else title
         audio      = text_to_speech(part, OUTPUT_DIR / f"{base_name}{suffix}")
-        update_podcast_feed(audio, part_title)
+        print("\n☁️   Uploading to R2...")
+        audio_url  = upload_to_r2(audio)
+        update_podcast_feed(audio, part_title, audio_url)
         paths.append(audio)
     return paths
 
@@ -635,6 +725,9 @@ def main():
         "status": "ok",
     }
     (PROJECT_DIR / "status.json").write_text(json.dumps(status, indent=2))
+
+    print("\n🧹  Purging old episodes...")
+    purge_old_episodes()
 
     print("\n☁️   Publishing to GitHub...")
     push_to_github()
