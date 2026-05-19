@@ -16,5 +16,21 @@
       <guid isPermaLink="false">ebd309bc91cb530964c652887781e641</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, May 19</title>
+      <pubDate>Tue, 19 May 2026 06:09:39 +0000</pubDate>
+      <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/brief-2026-05-19.mp3" length="22125120" type="audio/mpeg"/>
+      <guid isPermaLink="false">3a14de691410470f0ec574619bc97e53</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Google I/O 2026</title>
+      <pubDate>Tue, 19 May 2026 06:20:53 +0000</pubDate>
+      <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/special-2026-05-19-google-io-2026.mp3" length="1680000" type="audio/mpeg"/>
+      <guid isPermaLink="false">028e97a56d7007a342ef85ad3574cd46</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
