@@ -548,6 +548,9 @@ def main():
     today_pretty = datetime.now().strftime("%A, %B %d")
     title        = f"Morning Brief — {today_pretty}"
 
+    run_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"\n{'─' * 52}")
+    print(f"▶  Run started: {run_ts}")
     print(f"\n🎙  {title}")
     print("=" * 52)
 
@@ -625,8 +628,10 @@ def main():
     print("\n☁️   Publishing to GitHub...")
     push_to_github()
 
-    print(f"\n✅  Done! Subscribe in Apple Podcasts:")
+    done_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"\n✅  Done at {done_ts}")
     print(f"    {GITHUB_PAGES_URL}/feed.xml\n")
+    print(f"{'─' * 52}\n")
 
 if __name__ == "__main__":
     main()
