@@ -1,5 +1,7 @@
 # Morning Brief
 
+> **⚠ Known issue — audio hosting:** This project currently stores MP3 files directly in the GitHub repo and serves them via GitHub Pages. GitHub's web interface cannot download files over ~25MB, and the repo will grow by ~20MB/day. This works for podcast app streaming but is not a sustainable long-term solution. A dedicated audio host (Cloudflare R2, Backblaze B2, Transistor, Buzzsprout, etc.) is recommended for anything beyond personal use or a short trial.
+
 A personal AI news podcast that runs every morning before you wake up.
 
 Every day at 6:30am, this script fetches hundreds of RSS articles, has Claude write a spoken briefing tailored to your interests, converts it to audio via OpenAI TTS, and publishes it as a private podcast you can subscribe to in Apple Podcasts (or any podcast app).
