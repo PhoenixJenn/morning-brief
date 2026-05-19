@@ -161,6 +161,39 @@ All tunable settings are at the top of `morning_brief.py`:
 
 ---
 
+## Bonus: NFC trigger for your morning commute
+
+Once your podcast is set up, you can make it launch automatically when you walk out the door — no tapping, no unlocking your phone.
+
+**What you need:** Any NFC-enabled object. Old hotel keycards work perfectly. So do Disney MagicBands, transit cards, or cheap NFC stickers from Amazon (~$10 for a pack of 20).
+
+### Step 1 — Create a Morning Commute shortcut
+
+1. Open the **Shortcuts** app on your iPhone
+2. Tap **+** to create a new shortcut, name it "Morning Commute"
+3. Add actions in order:
+   - **Get Current Location** (optional — makes the next step smarter)
+   - **Open App** → Maps (or add a **Get Directions** action to your commute destination)
+   - **Open App** → Podcasts
+4. Save it
+
+When you run this shortcut, Maps opens with your commute and Podcasts opens to whatever was last playing — which will be that morning's episode.
+
+### Step 2 — Set up the NFC automation
+
+1. In Shortcuts, go to the **Automation** tab
+2. Tap **+** → **Personal Automation** → **NFC**
+3. Tap **Scan** and hold your keycard or MagicBand to the top of your iPhone
+4. Name it (e.g. "Morning Commute Tag")
+5. Add action: **Run Shortcut** → select "Morning Commute"
+6. Turn off **Ask Before Running** so it fires instantly
+
+### Step 3 — Place your tag
+
+Stick the keycard or NFC sticker somewhere you'll naturally brush your phone past on the way out — by the door, on your bag, on the car dashboard. Tap once, commute starts.
+
+---
+
 ## License
 
 MIT. Build your own, make it yours.
