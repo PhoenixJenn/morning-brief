@@ -571,8 +571,6 @@ def main():
         print("  No articles found. Check your network connection.")
         return
 
-    save_seen_titles(seen_titles | new_titles)
-
     # Partition articles on event days
     if active_events:
         regular_articles, event_articles = partition_articles(all_articles, active_events)
@@ -623,6 +621,7 @@ def main():
         produce_episode(special, f"special-{today}-{slug}", special_title)
 
     print("\n📻  Feed updated")
+    save_seen_titles(seen_titles | new_titles)
     print("\n☁️   Publishing to GitHub...")
     push_to_github()
 
