@@ -130,6 +130,25 @@ Change `30 6` to whatever time you want (24-hour format). The API keys must be s
 
 ---
 
+## Event calendar
+
+`events.json` in the project root defines upcoming conferences. When an event is active, articles matching its keywords are pulled into a dedicated **Special Brief** episode instead of the regular feed.
+
+Each entry has a name, start/end dates, and a list of keywords used to match articles:
+
+```json
+{
+  "name": "WWDC 2026",
+  "start": "2026-06-08",
+  "end": "2026-06-12",
+  "keywords": ["WWDC", "Apple developer", "visionOS"]
+}
+```
+
+The repo ships with a pre-populated calendar (CES, MWC, GDC, SXSW, Nvidia GTC, Google I/O, WWDC, AWE, SIGGRAPH, Qualcomm Snapdragon Summit, Adobe MAX, Samsung Unpacked, Meta Connect, NAB, AWS re:Invent). **Dates beyond mid-2026 are approximate placeholders** — check and update them each fall when conference schedules are announced.
+
+---
+
 ## Configuration options
 
 All tunable settings are at the top of `morning_brief.py`:
