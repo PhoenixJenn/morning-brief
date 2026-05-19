@@ -19,10 +19,11 @@ RSS feeds → Claude (briefing script) → OpenAI TTS → MP3
 ```
 
 1. Pulls articles from ~30 RSS feeds across 7 topic categories
-2. Sends them to Claude with a prompt tuned for spoken audio (not lists, not articles)
-3. Splits the transcript and converts it to MP3 via OpenAI's TTS API
-4. Updates an RSS feed file and pushes everything to GitHub Pages
-5. Your podcast app picks it up automatically
+2. Filters out any article that appeared in a previous episode (deduplication via `output/seen-titles.json`)
+3. Sends fresh articles to Claude with a prompt tuned for spoken audio (not lists, not articles)
+4. Splits the transcript and converts it to MP3 via OpenAI's TTS API
+5. Updates an RSS feed file and pushes everything to GitHub Pages
+6. Your podcast app picks it up automatically
 
 ---
 
@@ -153,6 +154,8 @@ All tunable settings are at the top of `morning_brief.py`:
 **No articles showing up:** Some feeds block automated fetching. The script skips failures silently — this is normal. Check the feed URLs work in a browser.
 
 **Episode already exists:** The script won't overwrite an existing episode. Delete `output/brief-YYYY-MM-DD.mp3` to regenerate.
+
+**Too many articles being skipped:** The deduplication file (`output/seen-titles.json`) grows over time. If you want to reset it and allow all articles through again, delete the file — it will be recreated on the next run.
 
 **Cron ran but nothing happened:** Check `output/cron.log` for error output.
 
