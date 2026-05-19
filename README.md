@@ -20,10 +20,11 @@ RSS feeds → Claude (briefing script) → OpenAI TTS → MP3
 
 1. Pulls articles from ~30 RSS feeds across 7 topic categories
 2. Filters out any article that appeared in a previous episode (deduplication via `output/seen-titles.json`)
-3. Sends fresh articles to Claude with a prompt tuned for spoken audio (not lists, not articles)
-4. Splits the transcript and converts it to MP3 via OpenAI's TTS API
-5. Updates an RSS feed file and pushes everything to GitHub Pages
-6. Your podcast app picks it up automatically
+3. Checks `events.json` for active conferences — if one is running, event articles are routed to a separate **Special Brief** episode
+4. Sends remaining articles to Claude with a prompt tuned for spoken audio (not lists, not articles)
+5. If either the regular or Special Brief exceeds ~8,500 words, it automatically splits into Part 1 and Part 2 as separate episodes so nothing gets cut
+6. Converts to MP3 via OpenAI's TTS API and updates the RSS feed
+7. Pushes everything to GitHub Pages — your podcast app picks it up automatically
 
 ---
 
@@ -130,11 +131,18 @@ Change `30 6` to whatever time you want (24-hour format). The API keys must be s
 
 ---
 
-## Event calendar
+## Special Briefs and the event calendar
 
-`events.json` in the project root defines upcoming conferences. When an event is active, articles matching its keywords are pulled into a dedicated **Special Brief** episode instead of the regular feed.
+On days when a major conference is active, the script produces two episodes instead of one:
 
-Each entry has a name, start/end dates, and a list of keywords used to match articles:
+- **Regular Brief** — all the day's news, minus conference coverage
+- **Special Brief** — a dedicated episode covering only that event's announcements, with a focused prompt that prioritizes completeness over length. No word cap. If there's a lot to cover, it splits into Part 1 and Part 2 rather than leaving anything out.
+
+Both land in your podcast feed automatically. On a big keynote day like Google I/O or WWDC, you might wake up to three episodes: the regular brief, and a two-part Special Brief covering every announcement.
+
+### Adding and editing events
+
+`events.json` in the project root defines the conference calendar. Each entry needs a name, start/end dates, and keywords used to match articles:
 
 ```json
 {
@@ -145,7 +153,9 @@ Each entry has a name, start/end dates, and a list of keywords used to match art
 }
 ```
 
-The repo ships with a pre-populated calendar (CES, MWC, GDC, SXSW, Nvidia GTC, Google I/O, WWDC, AWE, SIGGRAPH, Qualcomm Snapdragon Summit, Adobe MAX, Samsung Unpacked, Meta Connect, NAB, AWS re:Invent). **Dates beyond mid-2026 are approximate placeholders** — check and update them each fall when conference schedules are announced.
+The script watches a window of 1 day before the start date through 2 days after the end date, so pre-event coverage and recaps are included.
+
+The repo ships pre-populated with CES, MWC, GDC, SXSW, Nvidia GTC, Google I/O, WWDC, AWE, NAB, SIGGRAPH, Qualcomm Snapdragon Summit, Adobe MAX, Samsung Unpacked, Meta Connect, and AWS re:Invent. **Dates beyond mid-2026 are approximate placeholders** — update them each fall when schedules are confirmed.
 
 ---
 
