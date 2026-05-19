@@ -30,7 +30,7 @@ PODCAST_DESCRIPTION = "AI-curated daily tech briefing — spatial computing, AI,
 GITHUB_PAGES_URL    = "https://PhoenixJenn.github.io/morning-brief"
 
 TARGET_WORDS  = 7000   # ~48 min at 145 wpm — aim high so we land near 45
-SPLIT_WORDS   = 8500   # split into Part 1 / Part 2 if briefing exceeds this
+SPLIT_WORDS   = 1500   # split into parts at this word count (~8MB per part)
 LOOKBACK_HRS  = 26     # slightly more than 24 to catch late-night posts
 MAX_PER_FEED  = 10     # max articles pulled per feed
 TTS_VOICE     = "nova"    # OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
@@ -297,17 +297,20 @@ Write the full Special Brief now:"""
 # ─── Split long briefings ─────────────────────────────────────────────────────
 
 def split_briefing(text: str) -> list[str]:
-    """Split a briefing into two halves at the nearest sentence boundary to the midpoint."""
+    """Recursively split a briefing until every part is under SPLIT_WORDS."""
+    if len(text.split()) <= SPLIT_WORDS:
+        return [text]
     sentences = re.split(r'(?<=[.!?])\s+', text)
     total = len(text.split())
-    target, cumulative = total // 2, 0
-    split_at = len(sentences) // 2
+    target, cumulative, split_at = total // 2, 0, len(sentences) // 2
     for i, s in enumerate(sentences):
         cumulative += len(s.split())
         if cumulative >= target:
             split_at = i + 1
             break
-    return [" ".join(sentences[:split_at]), " ".join(sentences[split_at:])]
+    part1 = " ".join(sentences[:split_at])
+    part2 = " ".join(sentences[split_at:])
+    return split_briefing(part1) + split_briefing(part2)
 
 # ─── Text-to-Speech ───────────────────────────────────────────────────────────
 
@@ -533,7 +536,7 @@ def push_to_github():
 
 def produce_episode(text: str, base_name: str, title: str):
     """TTS a briefing (splitting into parts if long) and add to the feed. Returns audio paths."""
-    parts = split_briefing(text) if len(text.split()) > SPLIT_WORDS else [text]
+    parts = split_briefing(text)
     paths = []
     for i, part in enumerate(parts, 1):
         suffix     = f"-part{i}" if len(parts) > 1 else ""
