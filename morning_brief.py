@@ -464,7 +464,7 @@ def update_podcast_feed(audio_path: Path, title: str, audio_url: str = None):
     <description>{PODCAST_DESCRIPTION}</description>
     <language>en-us</language>
     <link>{GITHUB_PAGES_URL}</link>
-    <itunes:image href="{R2_PUBLIC_URL}/morningbrief.png"/>
+    <itunes:image href="{R2_PUBLIC_URL}/morningbrief.jpg"/>
     <itunes:category text="Technology"/>
     <itunes:explicit>false</itunes:explicit>
     {new_item}
