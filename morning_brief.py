@@ -608,7 +608,7 @@ def main():
     if event_articles and active_events:
         event_names = ", ".join(e["name"] for e in active_events)
         special_title = f"Special Brief — {event_names}"
-        slug = active_events[0]["name"].lower().replace(" ", "-")[:24]
+        slug = re.sub(r'[^a-z0-9-]', '', active_events[0]["name"].lower().replace(" ", "-"))[:24]
 
         print(f"\n🎤  Generating Special Brief for {event_names}...")
         special = generate_special_brief(event_articles, active_events, today_pretty)
