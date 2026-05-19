@@ -524,7 +524,7 @@ def write_action_items(tldr_and_actions: str, today: str, today_pretty: str):
 def push_to_github():
     os.chdir(PROJECT_DIR)
     today = datetime.now().strftime("%Y-%m-%d")
-    subprocess.run(["git", "add", "output/", "feed.xml"], check=True)
+    subprocess.run(["git", "add", "output/", "feed.xml", "status.json"], check=True)
     subprocess.run(["git", "commit", "-m", f"Morning brief {today}"], check=True)
     subprocess.run(["git", "push"], check=True)
     print("  ✓ Published to GitHub Pages")
@@ -625,6 +625,18 @@ def main():
 
     print("\n📻  Feed updated")
     save_seen_titles(seen_titles | new_titles)
+
+    # Write status.json for remote monitoring
+    status = {
+        "date": today,
+        "run_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "regular_brief": bool(regular_articles),
+        "special_brief": bool(event_articles and active_events),
+        "active_events": [e["name"] for e in active_events],
+        "status": "ok",
+    }
+    (PROJECT_DIR / "status.json").write_text(json.dumps(status, indent=2))
+
     print("\n☁️   Publishing to GitHub...")
     push_to_github()
 
