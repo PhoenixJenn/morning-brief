@@ -83,7 +83,7 @@ FEEDS = {
         "https://www.androidauthority.com/feed/",
         "https://spectrum.ieee.org/feeds/feed.rss",
     ],
-    "XR, Spatial Computing & Immersive Tech": [
+    "XR, Spatial Computing & Spatial Internet": [
         "https://www.roadtovr.com/feed/",
         "https://uploadvr.com/feed/",
         "https://arinsider.co/feed/",
@@ -92,7 +92,7 @@ FEEDS = {
         "https://mixed-news.com/en/feed/",
         "https://www.wareable.com/feed/",
     ],
-    "3D Scanning, Printing & Spatial Internet": [
+    "3D Scanning & Printing": [
         "https://spectrum.ieee.org/feeds/feed.rss",
         "https://techcrunch.com/feed/",
         "https://www.theverge.com/rss/index.xml",
@@ -242,8 +242,8 @@ STRUCTURE:
 TOPIC SECTIONS (cover each — weight toward AI and XR which are her core focus):
 1. General Tech & Industry — 3-4 top stories
 2. AI & Machine Learning — give this section the most depth; it's central to her work
-3. XR, Spatial Computing & Immersive Tech — important professionally; cover substantively
-4. 3D Scanning, Printing & Spatial Internet — include anything on Niantic Scaniverse, Creality, xTool, world models, digital twins, spatial internet
+3. XR, Spatial Computing & Spatial Internet — important professionally; cover substantively; include spatial internet, digital twins, world models
+4. 3D Scanning & Printing — include anything on Niantic Scaniverse, Creality, xTool, 3D Gaussian splatting, photogrammetry
 5. Autonomous Vehicles, Robotics & Humanoid Robots — 2-3 stories; humanoid robots (Figure, Tesla Optimus, Boston Dynamics, etc.) are of high interest
 6. IoT & Connected Devices — 2-3 stories; smart home, industrial IoT, connected devices
 7. Media & Entertainment — 2-3 stories
@@ -606,6 +606,79 @@ def write_action_items(tldr_and_actions: str, today: str, today_pretty: str):
     TODO_PATH.write_text(content)
     print(f"  ✓ Action items written to TODO.md")
 
+# ─── Email Digest ─────────────────────────────────────────────────────────────
+
+EMAIL_RECIPIENT = "jenn.lee@disney.com"
+EMAIL_SENDER    = "ClaudeCode9000@gmail.com"
+
+def generate_email_digest(briefing: str, today_pretty: str) -> tuple[str, str]:
+    """Reformat the audio transcript into a scannable HTML email digest."""
+    client = anthropic.Anthropic()
+
+    prompt = f"""You are reformatting a spoken audio news briefing into a clean email newsletter digest.
+
+The briefing was written to be *heard*, not read — no headers, flowing prose. Your job is to restructure it into a scannable digest with clear sections, bullet points, and bold key terms. Keep the editorial voice and insights; just change the format.
+
+OUTPUT FORMAT — return exactly this structure:
+
+SUBJECT: [one-line subject, e.g. "Morning Brief — Monday, May 18"]
+
+BODY:
+[Clean HTML email body. Use inline styles only. Design guidelines:
+- Max width 620px, centered, font-family: -apple-system, Arial, sans-serif, color: #1a1a1a
+- Header: large bold title "MORNING BRIEF" + date in smaller gray text below + one line of coverage categories in small gray text: "General Tech · AI & ML · XR, Spatial & Spatial Internet · 3D Scanning & Printing · Robotics & AVs · IoT · Media"
+- "TODAY'S TOP STORIES" section: gray background box (#f5f5f5), 3-4 must-read bullets, each starting with a bold term
+- Topic sections with ALL-CAPS headers in small gray text (AI & INDUSTRY, SPATIAL COMPUTING, ROBOTICS & AVs, IOT, MEDIA & ENTERTAINMENT)
+- Each section: 3-4 items as <p> tags. Each item: <strong>Company or Topic</strong> — 1-2 sentence summary
+- Closing "BIG PICTURE" section: 2-3 connective observations from the transcript
+- Footer: small gray text "Morning Brief · AI-curated · {today_pretty}"]
+
+BRIEFING TRANSCRIPT:
+{briefing}
+
+Return SUBJECT line first, then BODY with full HTML."""
+
+    print("  Generating email digest...")
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=4096,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    raw = message.content[0].text
+
+    subject = ""
+    html    = ""
+    if "SUBJECT:" in raw and "BODY:" in raw:
+        subject = raw.split("SUBJECT:")[1].split("BODY:")[0].strip()
+        html    = raw.split("BODY:")[1].strip()
+    else:
+        subject = f"Morning Brief — {today_pretty}"
+        html    = raw
+
+    return subject, html
+
+def send_email_digest(subject: str, html_body: str):
+    """Send the email digest via Gmail SMTP."""
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    password = os.environ.get("GMAIL_APP_PASSWORD", "").replace("\xa0", "").replace(" ", "")
+    if not password:
+        print("  ⚠ GMAIL_APP_PASSWORD not set — skipping email")
+        return
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"]    = EMAIL_SENDER
+    msg["To"]      = EMAIL_RECIPIENT
+    msg.attach(MIMEText(html_body, "html"))
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login(EMAIL_SENDER, password)
+        smtp.sendmail(EMAIL_SENDER, EMAIL_RECIPIENT, msg.as_string())
+    print(f"  ✓ Email digest sent to {EMAIL_RECIPIENT}")
+
 # ─── Publish to GitHub ────────────────────────────────────────────────────────
 
 def push_to_github():
@@ -618,6 +691,23 @@ def push_to_github():
     print("  ✓ Published to GitHub Pages")
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
+
+def upload_transcript_to_r2(path: Path):
+    """Upload a .txt transcript to R2 for archiving."""
+    access_key = os.environ.get("R2_ACCESS_KEY_ID")
+    secret_key = os.environ.get("R2_SECRET_ACCESS_KEY")
+    if not (R2_PUBLIC_URL and access_key and secret_key):
+        return
+    s3 = boto3.client(
+        "s3",
+        endpoint_url=R2_ENDPOINT,
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key,
+        config=Config(signature_version="s3v4"),
+    )
+    key = f"output/{path.name}"
+    s3.upload_file(str(path), R2_BUCKET, key, ExtraArgs={"ContentType": "text/plain"})
+    print(f"  ✓ Transcript archived to R2: {key}")
 
 def produce_episode(text: str, base_name: str, title: str):
     """TTS a briefing (splitting into parts if long), upload to R2, and add to the feed."""
@@ -678,7 +768,9 @@ def main():
         print("\n✍️   Generating briefing with Claude...")
         briefing = generate_briefing(regular_articles)
 
-        (OUTPUT_DIR / f"brief-{today}.txt").write_text(briefing)
+        txt_path = OUTPUT_DIR / f"brief-{today}.txt"
+        txt_path.write_text(briefing)
+        upload_transcript_to_r2(txt_path)
         words = len(briefing.split())
         print(f"  ✓ Transcript: {words:,} words (~{words // 145} min)")
         if words > SPLIT_WORDS:
@@ -692,6 +784,11 @@ def main():
         write_daily_log(parsed, today, today_pretty)
         write_action_items(parsed, today, today_pretty)
 
+        print("\n📧  Generating and sending email digest...")
+        subject, html_body = generate_email_digest(briefing, today_pretty)
+        (OUTPUT_DIR / f"brief-{today}-email.html").write_text(html_body)
+        send_email_digest(subject, html_body)
+
         print("\n🔊  Converting to audio...")
         produce_episode(briefing, f"brief-{today}", title)
 
@@ -704,7 +801,9 @@ def main():
         print(f"\n🎤  Generating Special Brief for {event_names}...")
         special = generate_special_brief(event_articles, active_events, today_pretty)
 
-        (OUTPUT_DIR / f"special-{today}-{slug}.txt").write_text(special)
+        special_txt = OUTPUT_DIR / f"special-{today}-{slug}.txt"
+        special_txt.write_text(special)
+        upload_transcript_to_r2(special_txt)
         words = len(special.split())
         print(f"  ✓ Special Brief: {words:,} words (~{words // 145} min)")
         if words > SPLIT_WORDS:
