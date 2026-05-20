@@ -242,7 +242,7 @@ STRUCTURE:
 TOPIC SECTIONS (cover each — weight toward AI and XR which are her core focus):
 1. General Tech & Industry — 3-4 top stories
 2. AI & Machine Learning — give this section the most depth; it's central to her work
-3. XR, Spatial Computing & Spatial Internet — important professionally; cover substantively; include spatial internet, digital twins, world models
+3. XR, Spatial Computing, Spatial Internet & World Models — important professionally; cover substantively; include spatial internet, digital twins, world models
 4. 3D Scanning & Printing — include anything on Niantic Scaniverse, Creality, xTool, 3D Gaussian splatting, photogrammetry
 5. Autonomous Vehicles, Robotics & Humanoid Robots — 2-3 stories; humanoid robots (Figure, Tesla Optimus, Boston Dynamics, etc.) are of high interest
 6. IoT & Connected Devices — 2-3 stories; smart home, industrial IoT, connected devices
