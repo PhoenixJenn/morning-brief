@@ -31,5 +31,21 @@
       <guid isPermaLink="false">morning-brief-2026-05-18</guid>
       <itunes:duration>8100</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Wednesday, May 20</title>
+      <pubDate>Wed, 20 May 2026 05:38:57 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-20.mp3" length="19501920" type="audio/mpeg"/>
+      <guid isPermaLink="false">c23152cfddc9cddea0993eb46ca1cb28</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Google I/O 2026</title>
+      <pubDate>Wed, 20 May 2026 05:40:23 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-05-20-google-io-2026.mp3" length="5809440" type="audio/mpeg"/>
+      <guid isPermaLink="false">028e97a56d7007a342ef85ad3574cd46</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
