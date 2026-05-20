@@ -1,7 +1,9 @@
 output/cron.log
 output/*.txt
+output/*.html
 output/*-actions.md
 output/seen-titles.json
+output/*.mp3
 __pycache__/
 *.pyc
 .DS_Store
