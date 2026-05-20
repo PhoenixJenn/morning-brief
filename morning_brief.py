@@ -608,7 +608,7 @@ def write_action_items(tldr_and_actions: str, today: str, today_pretty: str):
 
 # ─── Email Digest ─────────────────────────────────────────────────────────────
 
-EMAIL_RECIPIENT = "jenn.lee@disney.com"
+EMAIL_RECIPIENT = "phoenixjenn@gmail.com"
 EMAIL_SENDER    = "ClaudeCode9000@gmail.com"
 
 def generate_email_digest(briefing: str, today_pretty: str) -> tuple[str, str]:
