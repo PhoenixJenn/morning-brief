@@ -47,5 +47,21 @@
       <guid isPermaLink="false">028e97a56d7007a342ef85ad3574cd46</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Thursday, May 21</title>
+      <pubDate>Thu, 21 May 2026 05:39:37 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-21.mp3" length="22501920" type="audio/mpeg"/>
+      <guid isPermaLink="false">48648d9ca7792303896a455d181e28fd</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Google I/O 2026</title>
+      <pubDate>Thu, 21 May 2026 05:40:29 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-05-21-google-io-2026.mp3" length="3300000" type="audio/mpeg"/>
+      <guid isPermaLink="false">028e97a56d7007a342ef85ad3574cd46</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
