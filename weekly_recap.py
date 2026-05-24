@@ -218,10 +218,13 @@ def extract_top_stories_summary(html: str) -> str:
     items = re.findall(r'<strong>([^<]{5,60})</strong>', html)
     return ", ".join(items[:5]) + "." if items else "Weekly tech digest."
 
-def update_ayx_index(new_entry: str):
+def update_ayx_index(new_entry: str, week_slug: str):
     """Prepend new_entry to the brief-list div in weekly-briefs/index.html."""
     index_path = AYX_BRIEFS_DIR / "index.html"
     content = index_path.read_text()
+    if f"{week_slug}.html" in content:
+        print(f"  ✓ Index already has entry for {week_slug} — skipping")
+        return
     marker = "<!-- Most recent first — new entries go at the TOP -->"
     if marker in content:
         content = content.replace(marker, marker + new_entry)
@@ -244,7 +247,7 @@ def publish_to_ayx(email_html: str, week_label: str, week_slug: str, monday: dat
     # Update the index
     summary   = extract_top_stories_summary(email_html)
     new_entry = build_index_entry(week_label, week_slug, summary)
-    update_ayx_index(new_entry)
+    update_ayx_index(new_entry, week_slug)
     print(f"  ✓ Index updated")
 
     # Commit and push AYX
