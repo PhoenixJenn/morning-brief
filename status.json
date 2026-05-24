@@ -1,10 +1,8 @@
 {
-  "date": "2026-05-22",
-  "run_at": "2026-05-22 09:06:28",
+  "date": "2026-05-23",
+  "run_at": "2026-05-23 18:41:29",
   "regular_brief": true,
-  "special_brief": true,
-  "active_events": [
-    "Google I/O 2026"
-  ],
+  "special_brief": false,
+  "active_events": [],
   "status": "ok"
 }
