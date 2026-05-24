@@ -617,7 +617,14 @@ def generate_email_digest(briefing: str, today_pretty: str) -> tuple[str, str]:
 
     prompt = f"""You are reformatting a spoken audio news briefing into a clean email newsletter digest.
 
-The briefing was written to be *heard*, not read — no headers, flowing prose. Your job is to restructure it into a scannable digest with clear sections, bullet points, and bold key terms. Keep the editorial voice and insights; just change the format.
+The briefing was written to be *heard*, not read — no headers, flowing prose. Your job is to restructure it into a scannable digest with clear sections, bullet points, and bold key terms.
+
+CRITICAL RULES — these override everything else:
+1. COVER EVERY STORY. Do not drop any story from the transcript. If a section has 8 stories, include all 8. The reader listens to the podcast AND reads the email — omissions are noticed.
+2. PRESERVE ALL SPECIFIC FACTS. Every dollar amount, percentage, user count, date, company name, and product name must appear in the email exactly as stated in the transcript. Never round, approximate, or omit a number.
+3. KEEP THE ANALYTICAL CONCLUSIONS. The transcript's "so what" framing, competitive implications, and connective observations are the most valuable part. Do not strip them for brevity.
+4. PRESERVE DIRECT QUOTES when the transcript includes them — they carry meaning that paraphrasing loses.
+5. Do not pad — but do not compress at the cost of substance. Length is fine. Dropping facts is not.
 
 OUTPUT FORMAT — return exactly this structure:
 
@@ -627,10 +634,10 @@ BODY:
 [Clean HTML email body. Use inline styles only. Design guidelines:
 - Max width 620px, centered, font-family: -apple-system, Arial, sans-serif, color: #1a1a1a
 - Header: large bold title "MORNING BRIEF" + date in smaller gray text below + one line of coverage categories in small gray text: "General Tech · AI & ML · XR, Spatial & Spatial Internet · 3D Scanning & Printing · Robotics & AVs · IoT · Media"
-- "TODAY'S TOP STORIES" section: gray background box (#f5f5f5), 3-4 must-read bullets, each starting with a bold term
-- Topic sections with ALL-CAPS headers in small gray text (AI & INDUSTRY, SPATIAL COMPUTING, ROBOTICS & AVs, IOT, MEDIA & ENTERTAINMENT)
-- Each section: 3-4 items as <p> tags. Each item: <strong>Company or Topic</strong> — 1-2 sentence summary
-- Closing "BIG PICTURE" section: 2-3 connective observations from the transcript
+- "TODAY'S TOP STORIES" section: gray background box (#f5f5f5), 4-5 must-read bullets, each starting with a bold term and including the key specific facts/numbers from the transcript
+- Topic sections with ALL-CAPS headers in small gray text (AI & INDUSTRY, SPATIAL COMPUTING, ROBOTICS & AVs, 3D SCANNING & PRINTING, IOT, MEDIA & ENTERTAINMENT)
+- Each section: ALL stories from that section as <p> tags. Each item: <strong>Company or Topic</strong> — 2-3 sentence summary preserving specific numbers and the analytical "so what"
+- Closing "BIG PICTURE" section: 3-4 connective observations from the transcript, keeping the original editorial framing
 - Footer: small gray text "Morning Brief · AI-curated · {today_pretty}"]
 
 BRIEFING TRANSCRIPT:
@@ -641,7 +648,7 @@ Return SUBJECT line first, then BODY with full HTML."""
     print("  Generating email digest...")
     message = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=4096,
+        max_tokens=8192,
         messages=[{"role": "user", "content": prompt}],
     )
     raw = message.content[0].text
