@@ -191,9 +191,9 @@ def build_ayx_page(body_content: str, week_label: str, week_slug: str) -> str:
       <span class="post-meta-item" style="color:var(--accent);">Weekly Brief</span>
     </div>
   </div>
-  <div class="brief-content" style="max-width:680px;margin:0 auto;padding:0 1.5rem 3rem;">
+  <article class="prose brief-content">
 {content}
-  </div>
+  </article>
   <div class="post-nav">
     <a href="index.html">← All Weekly Briefs</a>
     <a href="../index.html">All Posts</a>
