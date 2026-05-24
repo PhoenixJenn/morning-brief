@@ -110,6 +110,76 @@ def send_email(subject: str, html_body: str):
         smtp.sendmail(EMAIL_SENDER, EMAIL_RECIPIENT, msg.as_string())
     print(f"  ✓ Email sent to {EMAIL_RECIPIENT}")
 
+# ─── Image size check ────────────────────────────────────────────────────────
+
+MAX_WIDTH_PX = 1400
+MAX_SIZE_MB  = 0.5
+IMAGE_EXTS   = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif"}
+
+def _image_dimensions(path: Path) -> tuple[int, int]:
+    """Return (width, height) using macOS sips. Returns (0, 0) on failure."""
+    try:
+        r = subprocess.run(
+            ["sips", "-g", "pixelWidth", "-g", "pixelHeight", str(path)],
+            capture_output=True, text=True, timeout=10,
+        )
+        lines = r.stdout.strip().splitlines()
+        width  = int(next(l.split(":")[1].strip() for l in lines if "pixelWidth"  in l))
+        height = int(next(l.split(":")[1].strip() for l in lines if "pixelHeight" in l))
+        return width, height
+    except Exception:
+        return 0, 0
+
+def check_staged_images() -> bool:
+    """
+    Inspect images staged in the AYX repo (after git add, before commit).
+    Prints a warning for each oversized image with a resize/compress suggestion.
+    Returns True if everything is within limits, False otherwise.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(AYX_DIR), "diff", "--cached", "--name-only"],
+        capture_output=True, text=True,
+    )
+    staged = [f.strip() for f in result.stdout.strip().splitlines() if f.strip()]
+    images = [f for f in staged if Path(f).suffix.lower() in IMAGE_EXTS]
+
+    if not images:
+        return True
+
+    print(f"\n🖼   Checking {len(images)} staged image(s)...")
+    all_clear = True
+
+    for rel in images:
+        path = AYX_DIR / rel
+        if not path.exists():
+            continue
+
+        size_mb = path.stat().st_size / (1024 * 1024)
+        w, h    = _image_dimensions(path)
+        issues  = []
+
+        if w > MAX_WIDTH_PX:
+            issues.append(f"width {w}px > {MAX_WIDTH_PX}px")
+        if size_mb > MAX_SIZE_MB:
+            issues.append(f"{size_mb:.1f}MB > {MAX_SIZE_MB}MB")
+
+        if issues:
+            print(f"  ⚠ {rel}: {', '.join(issues)}")
+            if w > MAX_WIDTH_PX:
+                print(f"      Resize: sips -Z {MAX_WIDTH_PX} \"{path.name}\"")
+            if size_mb > MAX_SIZE_MB:
+                print(f"      Compress: sips -s format jpeg -s formatOptions 80 \"{path.name}\" --out \"{path.stem}.jpg\"")
+                print(f"      Or use ImageOptim (drag & drop): https://imageoptim.com")
+            all_clear = False
+        else:
+            dim = f"{w}×{h}  " if w else ""
+            print(f"  ✓ {rel}: {dim}{size_mb:.2f}MB")
+
+    if not all_clear:
+        print("  ↳ Committing anyway — optimize these images when you can.")
+
+    return all_clear
+
 # ─── AYX Publishing ──────────────────────────────────────────────────────────
 
 def extract_body_content(full_html: str) -> str:
@@ -252,6 +322,7 @@ def publish_to_ayx(email_html: str, week_label: str, week_slug: str, monday: dat
     # Commit and push AYX
     try:
         subprocess.run(["git", "-C", str(AYX_DIR), "add", "weekly-briefs/"], check=True)
+        check_staged_images()
         subprocess.run(["git", "-C", str(AYX_DIR), "commit", "-m",
                         f"Weekly Brief {week_slug} — {week_label}"], check=True)
         subprocess.run(["git", "-C", str(AYX_DIR), "push"], check=True)
