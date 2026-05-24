@@ -136,15 +136,15 @@ def strip_email_header(body_content: str) -> str:
 
 def build_ayx_page(body_content: str, week_label: str, week_slug: str) -> str:
     """Wrap email body content in the AYX site template."""
-    title = f"Week in Review: {week_label}"
     content = strip_email_header(body_content)
+    page_title = f"Week in Review: {week_label}"
     return f"""<!DOCTYPE html>
 <!-- 🎨 EASTER EGG: Triple-click the logo to reveal the theme switcher -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title} — Augment Your Experience</title>
+  <title>{page_title} — Augment Your Experience</title>
   <meta name="description" content="AI, XR, spatial computing, robotics, and media — a practitioner's digest of the week's most important tech developments.">
   <link rel="stylesheet" href="../css/main.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -181,7 +181,7 @@ def build_ayx_page(body_content: str, week_label: str, week_slug: str) -> str:
   <div id="nav-mount"></div>
   <div class="post-header">
     <span class="hero-tag">AI · XR · Spatial Computing · Robotics · Media</span>
-    <h1>{title}</h1>
+    <h1>Week in Review</h1>
     <div class="post-meta">
       <span class="post-meta-item">{week_label}</span>
       <span class="post-meta-divider">·</span>
