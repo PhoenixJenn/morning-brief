@@ -150,6 +150,15 @@ def build_ayx_page(body_content: str, week_label: str, week_slug: str) -> str:
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <style>
+    /* Widen brief content to match site full content width */
+    article.brief-content {{
+      max-width: 1024px !important;
+    }}
+    /* Override email's inner width constraint */
+    article.brief-content > div {{
+      max-width: 100% !important;
+      padding: 0 !important;
+    }}
     /* Override email inline styles to match dark site theme */
     .brief-content, .brief-content * {{
       color: var(--text-body) !important;
@@ -161,16 +170,6 @@ def build_ayx_page(body_content: str, week_label: str, week_slug: str) -> str:
       color: var(--accent) !important;
     }}
     /* Top stories box */
-    .brief-content .top-stories-box {{
-      background-color: var(--bg-surface-2) !important;
-      border: 1px solid var(--border) !important;
-      border-radius: 6px;
-    }}
-    /* Section headers */
-    .brief-content .section-label {{
-      color: var(--text-muted) !important;
-    }}
-    /* Fallback: any div with light background */
     .brief-content div[style*="background-color:#f5f5f5"],
     .brief-content div[style*="background-color: #f5f5f5"] {{
       background-color: var(--bg-surface-2) !important;
