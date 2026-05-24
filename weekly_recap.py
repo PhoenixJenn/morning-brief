@@ -5,7 +5,9 @@ Runs Sunday morning. Produces a blog-ready markdown post + email digest.
 """
 
 import os
+import re
 import smtplib
+import subprocess
 import sys
 from datetime import datetime, timedelta, date
 from email.mime.multipart import MIMEMultipart
@@ -20,6 +22,8 @@ PROJECT_DIR    = Path(__file__).parent
 OUTPUT_DIR     = PROJECT_DIR / "output"
 EMAIL_SENDER   = "ClaudeCode9000@gmail.com"
 EMAIL_RECIPIENT = "phoenixjenn@gmail.com"
+AYX_DIR        = PROJECT_DIR.parent / "augmentyourexperience-www"
+AYX_BRIEFS_DIR = AYX_DIR / "weekly-briefs"
 
 # ─── Collect this week's transcripts ─────────────────────────────────────────
 
@@ -106,6 +110,108 @@ def send_email(subject: str, html_body: str):
         smtp.sendmail(EMAIL_SENDER, EMAIL_RECIPIENT, msg.as_string())
     print(f"  ✓ Email sent to {EMAIL_RECIPIENT}")
 
+# ─── AYX Publishing ──────────────────────────────────────────────────────────
+
+def extract_body_content(full_html: str) -> str:
+    """Extract inner body content from a full HTML document."""
+    m = re.search(r'<body[^>]*>(.*)</body>', full_html, re.DOTALL)
+    return m.group(1).strip() if m else full_html
+
+def build_ayx_page(body_content: str, week_label: str, week_slug: str) -> str:
+    """Wrap email body content in the AYX site template."""
+    title = f"Week in Review: {week_label}"
+    dates_short = week_label.split("–")[0].strip()
+    return f"""<!DOCTYPE html>
+<!-- 🎨 EASTER EGG: Triple-click the logo to reveal the theme switcher -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title} — Augment Your Experience</title>
+  <meta name="description" content="AI, XR, spatial computing, robotics, and media — a practitioner's digest of the week's most important tech developments.">
+  <link rel="stylesheet" href="../css/main.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+<body>
+  <div id="nav-mount"></div>
+  <div class="post-header">
+    <span class="hero-tag">AI · XR · Spatial Computing · Robotics · Media</span>
+    <h1>{title}</h1>
+    <div class="post-meta">
+      <span class="post-meta-item">{week_label.split(",")[-1].strip() if "," in week_label else week_label}</span>
+      <span class="post-meta-divider">·</span>
+      <span class="post-meta-item">Morning Brief Weekly Digest</span>
+      <span class="post-meta-divider">·</span>
+      <span class="post-meta-item" style="color:var(--accent);">Weekly Brief</span>
+    </div>
+  </div>
+  <div style="max-width:680px;margin:0 auto;padding:0 1.5rem 3rem;">
+{body_content}
+  </div>
+  <div class="post-nav">
+    <a href="index.html">← All Weekly Briefs</a>
+    <a href="../index.html">All Posts</a>
+  </div>
+  <div id="footer-mount"></div>
+  <div id="switcher-mount"></div>
+  <script src="../js/shared.js" data-base="../"></script>
+</body>
+</html>"""
+
+def build_index_entry(week_label: str, week_slug: str, top_stories_summary: str) -> str:
+    """Return an <a> card for the index page."""
+    return f"""
+      <a href="{week_slug}.html" style="display:block;text-decoration:none;border:1px solid var(--border, #e5e5e5);border-radius:8px;padding:1.25rem 1.5rem;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+        <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted,#888);margin-bottom:0.4rem;">Week of {week_label}</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--text,#1a1a1a);margin-bottom:0.4rem;">Week in Review: {week_label}</div>
+        <div style="font-size:0.9rem;color:var(--muted,#666);line-height:1.5;">{top_stories_summary}</div>
+      </a>"""
+
+def extract_top_stories_summary(html: str) -> str:
+    """Pull the first few bold terms from the top stories section for the index card."""
+    items = re.findall(r'<strong>([^<]{5,60})</strong>', html)
+    return ", ".join(items[:5]) + "." if items else "Weekly tech digest."
+
+def update_ayx_index(new_entry: str):
+    """Prepend new_entry to the brief-list div in weekly-briefs/index.html."""
+    index_path = AYX_BRIEFS_DIR / "index.html"
+    content = index_path.read_text()
+    marker = "<!-- Most recent first — new entries go at the TOP -->"
+    if marker in content:
+        content = content.replace(marker, marker + new_entry)
+        index_path.write_text(content)
+
+def publish_to_ayx(email_html: str, week_label: str, week_slug: str, monday: date, saturday: date):
+    if not AYX_DIR.exists():
+        print(f"  ⚠ AYX directory not found at {AYX_DIR} — skipping")
+        return
+
+    AYX_BRIEFS_DIR.mkdir(exist_ok=True)
+
+    # Build and save the AYX page
+    body_content = extract_body_content(email_html)
+    page_html    = build_ayx_page(body_content, week_label, week_slug)
+    page_path    = AYX_BRIEFS_DIR / f"{week_slug}.html"
+    page_path.write_text(page_html)
+    print(f"  ✓ Saved AYX page: {page_path}")
+
+    # Update the index
+    summary   = extract_top_stories_summary(email_html)
+    new_entry = build_index_entry(week_label, week_slug, summary)
+    update_ayx_index(new_entry)
+    print(f"  ✓ Index updated")
+
+    # Commit and push AYX
+    try:
+        subprocess.run(["git", "-C", str(AYX_DIR), "add", "weekly-briefs/"], check=True)
+        subprocess.run(["git", "-C", str(AYX_DIR), "commit", "-m",
+                        f"Weekly Brief {week_slug} — {week_label}"], check=True)
+        subprocess.run(["git", "-C", str(AYX_DIR), "push"], check=True)
+        print(f"  ✓ Pushed to GitHub")
+    except subprocess.CalledProcessError as e:
+        print(f"  ⚠ Git push failed: {e}")
+
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -135,6 +241,13 @@ def main():
     print("\n✍️   Generating weekly recap with Claude...")
     raw = generate_weekly_recap(transcripts, week_label)
 
+    # Strip markdown code fences if model wraps response
+    raw = raw.strip()
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[1]
+    if raw.endswith("```"):
+        raw = raw.rsplit("```", 1)[0]
+
     # Parse SUBJECT / BODY same as daily email
     subject = f"Week in Review — {week_label}"
     html    = raw
@@ -144,10 +257,13 @@ def main():
 
     out_html = OUTPUT_DIR / f"weekly-{week_slug}.html"
     out_html.write_text(html)
-    print(f"  ✓ Saved: {out_html}")
+    print(f"  ✓ Saved email HTML: {out_html}")
 
     print("\n📧  Sending email digest...")
     send_email(subject, html)
+
+    print("\n🌐  Publishing to Augment Your Experience...")
+    publish_to_ayx(html, week_label, week_slug, monday, saturday)
 
     print(f"\n✅  Done. HTML at:\n    {out_html}\n")
 
