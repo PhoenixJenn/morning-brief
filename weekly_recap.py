@@ -117,10 +117,27 @@ def extract_body_content(full_html: str) -> str:
     m = re.search(r'<body[^>]*>(.*)</body>', full_html, re.DOTALL)
     return m.group(1).strip() if m else full_html
 
+def strip_email_header(body_content: str) -> str:
+    """Remove the email's own WEEK IN REVIEW header — the AYX page has its own."""
+    # The email header is the first <div> inside the outer wrapper, containing
+    # the WEEK IN REVIEW title, date, and category line. Strip it out.
+    # Match the header div (ends before the TOP STORIES section)
+    stripped = re.sub(
+        r'<!--\s*HEADER\s*-->.*?(?=<!--\s*TOP STORIES|<!--\s*THIS WEEK)',
+        '', body_content, flags=re.DOTALL | re.IGNORECASE
+    )
+    # Fallback: remove the first child div of the outer wrapper if it contains "WEEK IN REVIEW"
+    if 'WEEK IN REVIEW' in stripped:
+        stripped = re.sub(
+            r'<div[^>]*>\s*<div[^>]*>WEEK IN REVIEW</div>.*?</div>\s*</div>',
+            '', stripped, count=1, flags=re.DOTALL
+        )
+    return stripped
+
 def build_ayx_page(body_content: str, week_label: str, week_slug: str) -> str:
     """Wrap email body content in the AYX site template."""
     title = f"Week in Review: {week_label}"
-    dates_short = week_label.split("–")[0].strip()
+    content = strip_email_header(body_content)
     return f"""<!DOCTYPE html>
 <!-- 🎨 EASTER EGG: Triple-click the logo to reveal the theme switcher -->
 <html lang="en">
@@ -132,6 +149,34 @@ def build_ayx_page(body_content: str, week_label: str, week_slug: str) -> str:
   <link rel="stylesheet" href="../css/main.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    /* Override email inline styles to match dark site theme */
+    .brief-content, .brief-content * {{
+      color: var(--text-body) !important;
+    }}
+    .brief-content strong {{
+      color: var(--text-primary) !important;
+    }}
+    .brief-content a {{
+      color: var(--accent) !important;
+    }}
+    /* Top stories box */
+    .brief-content .top-stories-box {{
+      background-color: var(--bg-surface-2) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 6px;
+    }}
+    /* Section headers */
+    .brief-content .section-label {{
+      color: var(--text-muted) !important;
+    }}
+    /* Fallback: any div with light background */
+    .brief-content div[style*="background-color:#f5f5f5"],
+    .brief-content div[style*="background-color: #f5f5f5"] {{
+      background-color: var(--bg-surface-2) !important;
+      border: 1px solid var(--border) !important;
+    }}
+  </style>
 </head>
 <body>
   <div id="nav-mount"></div>
@@ -139,15 +184,15 @@ def build_ayx_page(body_content: str, week_label: str, week_slug: str) -> str:
     <span class="hero-tag">AI · XR · Spatial Computing · Robotics · Media</span>
     <h1>{title}</h1>
     <div class="post-meta">
-      <span class="post-meta-item">{week_label.split(",")[-1].strip() if "," in week_label else week_label}</span>
+      <span class="post-meta-item">{week_label}</span>
       <span class="post-meta-divider">·</span>
       <span class="post-meta-item">Morning Brief Weekly Digest</span>
       <span class="post-meta-divider">·</span>
       <span class="post-meta-item" style="color:var(--accent);">Weekly Brief</span>
     </div>
   </div>
-  <div style="max-width:680px;margin:0 auto;padding:0 1.5rem 3rem;">
-{body_content}
+  <div class="brief-content" style="max-width:680px;margin:0 auto;padding:0 1.5rem 3rem;">
+{content}
   </div>
   <div class="post-nav">
     <a href="index.html">← All Weekly Briefs</a>
