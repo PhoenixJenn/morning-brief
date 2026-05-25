@@ -23,6 +23,8 @@ from openai import OpenAI
 
 PROJECT_DIR       = Path(__file__).parent
 OUTPUT_DIR        = PROJECT_DIR / "output"
+LOG_DIR           = PROJECT_DIR / "logs"
+ERROR_LOG         = LOG_DIR / "errors.log"
 RSS_FILE          = PROJECT_DIR / "feed.xml"
 SEEN_TITLES_FILE  = OUTPUT_DIR / "seen-titles.json"
 EVENTS_FILE       = PROJECT_DIR / "events.json"
@@ -481,6 +483,9 @@ DAILY_LOG_DIR       = CLAUDE_PROJECTS_DIR / "context" / "daily"
 TODO_PATH           = CLAUDE_PROJECTS_DIR / "context" / "TODO.md"
 BRIEF_INBOX_PATH    = CLAUDE_PROJECTS_DIR / "context" / "brief-inbox.md"
 
+AYX_DIR             = PROJECT_DIR.parent / "augmentyourexperience-www"
+AYX_EVENTS_PATH     = AYX_DIR / "data" / "events.json"
+
 def parse_briefing(briefing: str, today: str, today_pretty: str) -> dict:
     """Extract TLDR and action items from the briefing via Claude."""
     client = anthropic.Anthropic()
@@ -602,10 +607,169 @@ def write_action_items(tldr_and_actions: str, today: str, today_pretty: str):
 
     print(f"  ✓ Action items written to brief-inbox.md")
 
-# ─── Email Digest ─────────────────────────────────────────────────────────────
+# ─── Event Extraction ────────────────────────────────────────────────────────
+
+def extract_new_events(briefing: str) -> list:
+    """Ask Claude to pull new trackable events from today's briefing."""
+    if not AYX_EVENTS_PATH.exists():
+        existing_names = []
+    else:
+        existing = json.loads(AYX_EVENTS_PATH.read_text())
+        existing_names = [e["name"] for e in existing]
+
+    client = anthropic.Anthropic()
+    prompt = f"""Read this morning briefing and identify any upcoming events worth tracking publicly — conferences, product launches, IPOs, major regulatory milestones, or government decisions with hard deadlines.
+
+ALREADY TRACKED (do not re-add these):
+{json.dumps(existing_names, indent=2)}
+
+Rules:
+- Only include events with a specific date or a reasonable estimate (within ~3 months)
+- Skip vague future references with no timeframe
+- Skip duplicates or minor updates to already-tracked events
+- If no new events qualify, return an empty array
+
+Return ONLY a valid JSON array (no explanation, no markdown fences). Each object:
+{{
+  "id": "kebab-case-name-year",
+  "name": "Event Name",
+  "date": "YYYY-MM-DD",
+  "date_end": "YYYY-MM-DD or null",
+  "date_approximate": true or false,
+  "event_type": "conference | launch | finance | regulatory",
+  "location": "City, State / Online — or null",
+  "categories": ["ai", "xr", "robotics", "space", "iot", "3d", "media"],
+  "description": "1-2 sentence factual description.",
+  "why_watching": "1 sentence on why this matters to AI/XR/spatial computing practitioners.",
+  "new": true
+}}
+
+BRIEFING:
+{briefing}"""
+
+    print("  Checking briefing for new events...")
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    raw = message.content[0].text.strip()
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[1].rsplit("```", 1)[0]
+    try:
+        events = json.loads(raw)
+        return events if isinstance(events, list) else []
+    except json.JSONDecodeError:
+        print(f"  ⚠ Could not parse event JSON: {raw[:200]}")
+        return []
+
+
+def update_ayx_events(new_events: list, today: str):
+    """Append new events to data/events.json and push to AYX."""
+    if not new_events:
+        print("  No new events found.")
+        return
+    if not AYX_EVENTS_PATH.exists():
+        print(f"  ⚠ AYX events file not found at {AYX_EVENTS_PATH} — skipping")
+        return
+
+    existing = json.loads(AYX_EVENTS_PATH.read_text())
+    existing_ids = {e["id"] for e in existing}
+    added = [e for e in new_events if e["id"] not in existing_ids]
+
+    if not added:
+        print("  No new events to add (all already tracked).")
+        return
+
+    existing.extend(added)
+    existing.sort(key=lambda e: e["date"])
+    AYX_EVENTS_PATH.write_text(json.dumps(existing, indent=2, ensure_ascii=False))
+    print(f"  ✓ Added {len(added)} new event(s): {[e['name'] for e in added]}")
+
+    try:
+        subprocess.run(["git", "-C", str(AYX_DIR), "add", "data/events.json"], check=True)
+        subprocess.run(["git", "-C", str(AYX_DIR), "commit", "-m",
+                        f"Events update {today} — {len(added)} new"], check=True)
+        subprocess.run(["git", "-C", str(AYX_DIR), "push"], check=True)
+        print("  ✓ Events pushed to AYX")
+    except subprocess.CalledProcessError as e:
+        print(f"  ⚠ Git push failed: {e}")
+
+
+# ─── Error Logging & Alerting ─────────────────────────────────────────────────
 
 EMAIL_RECIPIENT = "phoenixjenn@gmail.com"
 EMAIL_SENDER    = "ClaudeCode9000@gmail.com"
+
+def send_alert_email(step: str, exc: Exception, tb: str = "") -> None:
+    """Send an urgent failure alert via Gmail. Never raises — only prints on failure."""
+    import smtplib
+    import traceback
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    password = os.environ.get("GMAIL_APP_PASSWORD", "").replace("\xa0", "").replace(" ", "")
+    if not password:
+        print("  ⚠ GMAIL_APP_PASSWORD not set — skipping alert email")
+        return
+
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    subject = f"🚨 Morning Brief FAILED — {step} ({ts[:10]})"
+    tb_escaped = tb.replace("<", "&lt;").replace(">", "&gt;")
+    html = f"""<html><body style="font-family:monospace;background:#1a1a1a;color:#e0e0e0;padding:20px;max-width:680px;margin:auto;">
+<h2 style="color:#f87171;margin-top:0;">Morning Brief Job Failed</h2>
+<table style="border-collapse:collapse;margin-bottom:16px;">
+  <tr><td style="color:#888;padding-right:12px;">Step</td><td style="color:#fbbf24;">{step}</td></tr>
+  <tr><td style="color:#888;padding-right:12px;">Error</td><td>{exc}</td></tr>
+  <tr><td style="color:#888;padding-right:12px;">Time</td><td>{ts}</td></tr>
+</table>
+<pre style="background:#111;padding:12px;border-radius:6px;font-size:0.8em;color:#f97316;overflow-x:auto;">{tb_escaped}</pre>
+<p style="color:#555;font-size:0.8em;">Log: {ERROR_LOG}<br>
+Retry: <code style="color:#888;">python morning_brief.py</code></p>
+</body></html>"""
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"]    = EMAIL_SENDER
+        msg["To"]      = EMAIL_RECIPIENT
+        msg.attach(MIMEText(html, "html"))
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(EMAIL_SENDER, password)
+            smtp.sendmail(EMAIL_SENDER, EMAIL_RECIPIENT, msg.as_string())
+        print(f"  ✓ Alert email sent to {EMAIL_RECIPIENT}")
+    except Exception as mail_err:
+        print(f"  ⚠ Could not send alert email: {mail_err}")
+
+
+def log_error(step: str, exc: Exception, today: str = "") -> None:
+    """Append to errors.log, update status.json to 'error', and send alert email."""
+    import traceback
+    LOG_DIR.mkdir(exist_ok=True)
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    tb = traceback.format_exc()
+    entry = f"\n{'='*52}\n[{ts}] STEP: {step}\nERROR: {exc}\n\nTRACEBACK:\n{tb}\n"
+    with open(ERROR_LOG, "a") as f:
+        f.write(entry)
+    print(f"  ✗ ERROR in '{step}': {exc}")
+
+    status_path = PROJECT_DIR / "status.json"
+    try:
+        status = json.loads(status_path.read_text()) if status_path.exists() else {}
+    except Exception:
+        status = {}
+    status.update({"status": "error", "error_step": step, "error": str(exc), "error_at": ts})
+    if today:
+        status["date"] = today
+    try:
+        status_path.write_text(json.dumps(status, indent=2))
+    except Exception:
+        pass
+
+    send_alert_email(step, exc, tb)
+
+
+# ─── Email Digest ─────────────────────────────────────────────────────────────
 
 def generate_email_digest(briefing: str, today_pretty: str) -> tuple[str, str]:
     """Reformat the audio transcript into a scannable HTML email digest."""
@@ -769,31 +933,71 @@ def main():
     # ── Regular brief ──
     if regular_articles:
         print("\n✍️   Generating briefing with Claude...")
-        briefing = generate_briefing(regular_articles)
+        try:
+            briefing = generate_briefing(regular_articles)
+        except Exception as e:
+            log_error("generate_briefing", e, today)
+            raise
 
         txt_path = OUTPUT_DIR / f"brief-{today}.txt"
         txt_path.write_text(briefing)
-        upload_transcript_to_r2(txt_path)
+        try:
+            upload_transcript_to_r2(txt_path)
+        except Exception as e:
+            log_error("upload_transcript_to_r2", e, today)
+            print("  ⚠ R2 upload failed — continuing without cloud backup")
+
         words = len(briefing.split())
         print(f"  ✓ Transcript: {words:,} words (~{words // 145} min)")
         if words > SPLIT_WORDS:
             print(f"  ⚡ Over {SPLIT_WORDS:,} words — will split into two parts")
 
         print("\n🔍  Parsing briefing for TLDR + action items...")
-        parsed = parse_briefing(briefing, today, today_pretty)
+        try:
+            parsed = parse_briefing(briefing, today, today_pretty)
+        except Exception as e:
+            log_error("parse_briefing", e, today)
+            raise
         (OUTPUT_DIR / f"brief-{today}-actions.md").write_text(parsed)
 
         print("\n📓  Writing to daily log and TODO...")
-        write_daily_log(parsed, today, today_pretty)
-        write_action_items(parsed, today, today_pretty)
+        try:
+            write_daily_log(parsed, today, today_pretty)
+            write_action_items(parsed, today, today_pretty)
+        except Exception as e:
+            log_error("write_daily_log/write_action_items", e, today)
+            print("  ⚠ Log/inbox write failed — continuing")
+
+        try:
+            import watchlist_curator
+            watchlist_curator.run(today)
+        except Exception as e:
+            log_error("watchlist_curator", e, today)
+            print("  ⚠ Watchlist curator failed — continuing")
+
+        print("\n📅  Scanning for new events...")
+        try:
+            new_events = extract_new_events(briefing)
+            update_ayx_events(new_events, today)
+        except Exception as e:
+            log_error("extract_new_events/update_ayx_events", e, today)
+            print("  ⚠ Event extraction failed — continuing")
 
         print("\n📧  Generating and sending email digest...")
-        subject, html_body = generate_email_digest(briefing, today_pretty)
-        (OUTPUT_DIR / f"brief-{today}-email.html").write_text(html_body)
-        send_email_digest(subject, html_body)
+        try:
+            subject, html_body = generate_email_digest(briefing, today_pretty)
+            (OUTPUT_DIR / f"brief-{today}-email.html").write_text(html_body)
+            send_email_digest(subject, html_body)
+        except Exception as e:
+            log_error("generate_email_digest/send_email_digest", e, today)
+            print("  ⚠ Email digest failed — continuing")
 
         print("\n🔊  Converting to audio...")
-        produce_episode(briefing, f"brief-{today}", title)
+        try:
+            produce_episode(briefing, f"brief-{today}", title)
+        except Exception as e:
+            log_error("produce_episode", e, today)
+            raise
 
     # ── Special brief ──
     if event_articles and active_events:
@@ -802,18 +1006,31 @@ def main():
         slug = re.sub(r'[^a-z0-9-]', '', active_events[0]["name"].lower().replace(" ", "-"))[:24]
 
         print(f"\n🎤  Generating Special Brief for {event_names}...")
-        special = generate_special_brief(event_articles, active_events, today_pretty)
+        try:
+            special = generate_special_brief(event_articles, active_events, today_pretty)
+        except Exception as e:
+            log_error("generate_special_brief", e, today)
+            raise
 
         special_txt = OUTPUT_DIR / f"special-{today}-{slug}.txt"
         special_txt.write_text(special)
-        upload_transcript_to_r2(special_txt)
+        try:
+            upload_transcript_to_r2(special_txt)
+        except Exception as e:
+            log_error("upload_transcript_to_r2 (special)", e, today)
+            print("  ⚠ R2 upload failed — continuing")
+
         words = len(special.split())
         print(f"  ✓ Special Brief: {words:,} words (~{words // 145} min)")
         if words > SPLIT_WORDS:
             print(f"  ⚡ Over {SPLIT_WORDS:,} words — will split into two parts")
 
         print("\n🔊  Converting Special Brief to audio...")
-        produce_episode(special, f"special-{today}-{slug}", special_title)
+        try:
+            produce_episode(special, f"special-{today}-{slug}", special_title)
+        except Exception as e:
+            log_error("produce_episode (special)", e, today)
+            raise
 
     print("\n📻  Feed updated")
     save_seen_titles(seen_titles | new_titles)
@@ -830,10 +1047,18 @@ def main():
     (PROJECT_DIR / "status.json").write_text(json.dumps(status, indent=2))
 
     print("\n🧹  Purging old episodes...")
-    purge_old_episodes()
+    try:
+        purge_old_episodes()
+    except Exception as e:
+        log_error("purge_old_episodes", e, today)
+        print("  ⚠ Purge failed — continuing")
 
     print("\n☁️   Publishing to GitHub...")
-    push_to_github()
+    try:
+        push_to_github()
+    except Exception as e:
+        log_error("push_to_github", e, today)
+        raise
 
     done_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"\n✅  Done at {done_ts}")
@@ -841,4 +1066,16 @@ def main():
     print(f"{'─' * 52}\n")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        # log_error already called inside main for known steps;
+        # this catches any unhandled crash and ensures a final alert
+        LOG_DIR.mkdir(exist_ok=True)
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(ERROR_LOG, "a") as f:
+            f.write(f"\n{'='*52}\n[{ts}] UNHANDLED CRASH\n{tb}\n")
+        send_alert_email("unhandled crash", e, tb)
+        raise SystemExit(1)
