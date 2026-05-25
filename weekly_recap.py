@@ -65,9 +65,9 @@ SUBJECT: Week in Review — {week_label}
 BODY:
 [Clean HTML email body. Use inline styles only. Design guidelines:
 - Max width 620px, centered, font-family: -apple-system, Arial, sans-serif, color: #1a1a1a
-- Header: large bold title "WEEK IN REVIEW" + date range in smaller gray text below + one line of coverage categories in small gray text: "General Tech · AI & ML · XR & Spatial · 3D Scanning & Printing · Robotics & AVs · IoT · Media"
+- Header: large bold title "WEEK IN REVIEW" + date range in smaller gray text below + one line of coverage categories in small gray text: "General Tech · AI & ML · XR & Spatial · 3D Capture & Create · Robotics & AVs · IoT · Media"
 - "THIS WEEK'S TOP STORIES" section: gray background box (#f5f5f5), 5-6 must-read bullets — the single most important development from the week, each starting with a bold term and including key specific facts/numbers
-- Topic sections with ALL-CAPS headers in small gray text (AI & INDUSTRY, SPATIAL COMPUTING & XR, ROBOTICS & AVs, 3D SCANNING & PRINTING, IOT, MEDIA & ENTERTAINMENT)
+- Topic sections with ALL-CAPS headers in small gray text (AI & INDUSTRY, SPATIAL COMPUTING & XR, ROBOTICS & AVs, 3D CAPTURE & CREATE, IOT, MEDIA & ENTERTAINMENT)
 - Each section: key stories as <p> tags. Each item: <strong>Company or Topic</strong> — 2-3 sentences. If a story ran across multiple days, synthesize into one entry.
 - Closing "BIG PICTURE" section: 3-4 connective observations about the week's themes
 - Footer: small gray text "Morning Brief · Week of {week_label} · AI-curated daily podcast · Subscribe: https://PhoenixJenn.github.io/morning-brief/feed.xml"]

@@ -92,7 +92,7 @@ FEEDS = {
         "https://mixed-news.com/en/feed/",
         "https://www.wareable.com/feed/",
     ],
-    "3D Scanning & Printing": [
+    "3D Capture & Create": [
         "https://spectrum.ieee.org/feeds/feed.rss",
         "https://techcrunch.com/feed/",
         "https://www.theverge.com/rss/index.xml",
@@ -243,7 +243,7 @@ TOPIC SECTIONS (cover each — weight toward AI and XR which are her core focus)
 1. General Tech & Industry — 3-4 top stories
 2. AI & Machine Learning — give this section the most depth; it's central to her work
 3. XR, Spatial Computing, Spatial Internet & World Models — important professionally; cover substantively; include spatial internet, digital twins, world models
-4. 3D Scanning & Printing — include anything on Niantic Scaniverse, Creality, xTool, 3D Gaussian splatting, photogrammetry
+4. 3D Capture & Create — include anything on Niantic Scaniverse, Creality, xTool, 3D Gaussian splatting, photogrammetry
 5. Autonomous Vehicles, Robotics & Humanoid Robots — 2-3 stories; humanoid robots (Figure, Tesla Optimus, Boston Dynamics, etc.) are of high interest
 6. IoT & Connected Devices — 2-3 stories; smart home, industrial IoT, connected devices
 7. Media & Entertainment — 2-3 stories
@@ -629,9 +629,9 @@ SUBJECT: [one-line subject, e.g. "Morning Brief — Monday, May 18"]
 BODY:
 [Clean HTML email body. Use inline styles only. Design guidelines:
 - Max width 620px, centered, font-family: -apple-system, Arial, sans-serif, color: #1a1a1a
-- Header: large bold title "MORNING BRIEF" + date in smaller gray text below + one line of coverage categories in small gray text: "General Tech · AI & ML · XR, Spatial & Spatial Internet · 3D Scanning & Printing · Robotics & AVs · IoT · Media"
+- Header: large bold title "MORNING BRIEF" + date in smaller gray text below + one line of coverage categories in small gray text: "General Tech · AI & ML · XR, Spatial & Spatial Internet · 3D Capture & Create · Robotics & AVs · IoT · Media"
 - "TODAY'S TOP STORIES" section: gray background box (#f5f5f5), 4-5 must-read bullets, each starting with a bold term and including the key specific facts/numbers from the transcript
-- Topic sections with ALL-CAPS headers in small gray text (AI & INDUSTRY, SPATIAL COMPUTING, ROBOTICS & AVs, 3D SCANNING & PRINTING, IOT, MEDIA & ENTERTAINMENT)
+- Topic sections with ALL-CAPS headers in small gray text (AI & INDUSTRY, SPATIAL COMPUTING, ROBOTICS & AVs, 3D CAPTURE & CREATE, IOT, MEDIA & ENTERTAINMENT)
 - Each section: ALL stories from that section as <p> tags. Each item: <strong>Company or Topic</strong> — 2-3 sentence summary preserving specific numbers and the analytical "so what"
 - Closing "BIG PICTURE" section: 3-4 connective observations from the transcript, keeping the original editorial framing
 - Footer: small gray text "Morning Brief · AI-curated · {today_pretty}"]
