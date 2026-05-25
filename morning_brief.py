@@ -27,7 +27,7 @@ LOG_DIR           = PROJECT_DIR / "logs"
 ERROR_LOG         = LOG_DIR / "errors.log"
 RSS_FILE          = PROJECT_DIR / "feed.xml"
 SEEN_TITLES_FILE  = OUTPUT_DIR / "seen-titles.json"
-EVENTS_FILE       = PROJECT_DIR / "events.json"
+EVENTS_FILE       = PROJECT_DIR.parent / "augmentyourexperience-www" / "data" / "events.json"
 
 PODCAST_TITLE       = "Morning Brief"
 PODCAST_DESCRIPTION = "AI-curated daily tech briefing — spatial computing, AI, XR, media, and more."
@@ -140,8 +140,8 @@ def get_active_events(today: str) -> list:
     today_dt = date.fromisoformat(today)
     active = []
     for event in json.loads(EVENTS_FILE.read_text()):
-        start = date.fromisoformat(event["start"]) - timedelta(days=1)
-        end   = date.fromisoformat(event.get("end", event["start"])) + timedelta(days=2)
+        start = date.fromisoformat(event["date"]) - timedelta(days=1)
+        end   = date.fromisoformat(event.get("date_end") or event["date"]) + timedelta(days=2)
         if start <= today_dt <= end:
             active.append(event)
     return active
@@ -484,7 +484,7 @@ TODO_PATH           = CLAUDE_PROJECTS_DIR / "context" / "TODO.md"
 BRIEF_INBOX_PATH    = CLAUDE_PROJECTS_DIR / "context" / "brief-inbox.md"
 
 AYX_DIR             = PROJECT_DIR.parent / "augmentyourexperience-www"
-AYX_EVENTS_PATH     = AYX_DIR / "data" / "events.json"
+AYX_EVENTS_PATH     = EVENTS_FILE  # same file — AYX is the single source of truth
 
 def parse_briefing(briefing: str, today: str, today_pretty: str) -> str:
     """Extract TLDR and action items — two focused calls with separate token budgets.
