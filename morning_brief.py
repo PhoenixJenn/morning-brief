@@ -486,62 +486,91 @@ BRIEF_INBOX_PATH    = CLAUDE_PROJECTS_DIR / "context" / "brief-inbox.md"
 AYX_DIR             = PROJECT_DIR.parent / "augmentyourexperience-www"
 AYX_EVENTS_PATH     = AYX_DIR / "data" / "events.json"
 
-def parse_briefing(briefing: str, today: str, today_pretty: str) -> dict:
-    """Extract TLDR and action items from the briefing via Claude."""
+def parse_briefing(briefing: str, today: str, today_pretty: str) -> str:
+    """Extract TLDR and action items — two focused calls with separate token budgets.
+
+    Split rationale: a single 2048-token response couldn't reliably fit both TLDR
+    (8-12 bullets) and all six action categories on long briefs, causing the last
+    sections (esp. People & Companies) to be silently truncated.
+
+    Refactoring notes for next pass:
+      - anthropic.Anthropic() is re-instantiated in every function; move to module level
+      - main() is ~170 lines and could be decomposed into a pipeline of named steps
+      - watchlist_curator is imported inline inside main(); hoist to top-level import
+    """
     client = anthropic.Anthropic()
+    print("  Parsing briefing (TLDR + action items)...")
 
-    prompt = f"""Read this morning news briefing and extract two things:
+    # ── Call 1: TLDR (800 tokens is plenty for 8-12 bullets) ──────────────────
+    tldr_msg = client.messages.create(
+        model="claude-opus-4-7",
+        max_tokens=800,
+        messages=[{
+            "role": "user",
+            "content": f"""Read this morning news briefing and write a TLDR.
 
-1. A TLDR — 8 to 12 bullet points covering the most important stories. Be specific and concrete. No vague summaries.
+8 to 12 bullet points. Specific and concrete — cite company names, numbers, and facts. No vague summaries.
 
-2. Action items across these categories. Only include items that are genuinely actionable — skip anything vague:
-   - **Upcoming Events** — conferences, product launches, keynotes, release dates worth putting on the radar
-   - **Things to Try** — new features, tools, apps, or functionality worth testing (e.g. Meta's 2D-to-3D photo, a new AI tool, a product update)
-   - **Stories to Follow** — ongoing developments worth tracking over the next week or two
-   - **Blog Post Ideas** — angles worth writing about on a spatial computing / emerging tech blog
-   - **People & Companies to Watch** — names worth adding to a watchlist
-   - **Other** — anything actionable that doesn't fit above
-
-Format your response EXACTLY like this (use these exact headers):
+Format EXACTLY like this:
 
 ## TLDR
 - bullet
 - bullet
 
+---
+
+BRIEFING:
+{briefing}""",
+        }],
+    )
+    tldr_section = tldr_msg.content[0].text.strip()
+
+    # ── Call 2: Action items (2500 tokens for six full categories) ─────────────
+    actions_msg = client.messages.create(
+        model="claude-opus-4-7",
+        max_tokens=2500,
+        messages=[{
+            "role": "user",
+            "content": f"""Read this morning news briefing and extract action items across six categories.
+Only include genuinely actionable items — skip anything vague.
+
 ## Action Items
 
 ### Upcoming Events
-- item (source: where this came from)
+Conferences, product launches, keynotes, release dates. Include source in parentheses.
+- item (source: ...)
 
 ### Things to Try
+New features, tools, apps, or functionality worth testing hands-on.
 - item
 
 ### Stories to Follow
+Ongoing developments worth tracking over the next 1-2 weeks.
 - item
 
 ### Blog Post Ideas
+Angles worth writing about on a spatial computing / emerging tech blog.
 - item
 
 ### People & Companies to Watch
-- item
+Names worth adding to a watchlist. Include a 1-line reason in parentheses.
+- Name (reason)
 
 ### Other
+Anything actionable that doesn't fit above.
 - item
 
-If a category has nothing actionable, write "None today." under it.
+Use these exact headers. If a category has nothing actionable, write "None today." under it.
 
 ---
 
 BRIEFING:
-{briefing}"""
-
-    print("  Parsing briefing for action items...")
-    message = client.messages.create(
-        model="claude-opus-4-7",
-        max_tokens=2048,
-        messages=[{"role": "user", "content": prompt}],
+{briefing}""",
+        }],
     )
-    return message.content[0].text
+    actions_section = actions_msg.content[0].text.strip()
+
+    return f"{tldr_section}\n\n{actions_section}"
 
 def write_daily_log(tldr_and_actions: str, today: str, today_pretty: str):
     """Append TLDR to today's daily log in claude_projects."""
