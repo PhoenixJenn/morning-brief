@@ -479,6 +479,7 @@ def update_podcast_feed(audio_path: Path, title: str, audio_url: str = None):
 CLAUDE_PROJECTS_DIR = Path("/Users/jennlee/Projects/claude_projects")
 DAILY_LOG_DIR       = CLAUDE_PROJECTS_DIR / "context" / "daily"
 TODO_PATH           = CLAUDE_PROJECTS_DIR / "context" / "TODO.md"
+BRIEF_INBOX_PATH    = CLAUDE_PROJECTS_DIR / "context" / "brief-inbox.md"
 
 def parse_briefing(briefing: str, today: str, today_pretty: str) -> dict:
     """Extract TLDR and action items from the briefing via Claude."""
@@ -573,9 +574,9 @@ def write_daily_log(tldr_and_actions: str, today: str, today_pretty: str):
         print(f"  ✓ Daily log created with TLDR: {log_path.name}")
 
 def write_action_items(tldr_and_actions: str, today: str, today_pretty: str):
-    """Append action items to claude_projects TODO.md."""
-    if not TODO_PATH.exists():
-        print(f"  ⚠ TODO.md not found at {TODO_PATH}")
+    """Append action items to the brief inbox."""
+    if not BRIEF_INBOX_PATH.exists():
+        print(f"  ⚠ brief-inbox.md not found at {BRIEF_INBOX_PATH}")
         return
 
     # Extract everything after ## Action Items
@@ -587,8 +588,8 @@ def write_action_items(tldr_and_actions: str, today: str, today_pretty: str):
         print("  No action items to write.")
         return
 
-    # Convert ### headers + bullets into flat TODO format
-    entry = f"\n### From Morning Brief — {today_pretty}\n"
+    # Convert ### headers + bullets into flat inbox format
+    entry = f"\n---\n\n### From Morning Brief — {today_pretty}\n"
     for line in action_block.split("\n"):
         stripped = line.strip()
         if stripped.startswith("### "):
@@ -596,15 +597,10 @@ def write_action_items(tldr_and_actions: str, today: str, today_pretty: str):
         elif stripped.startswith("- ") and "None today" not in stripped:
             entry += f"- [ ] {stripped[2:]}\n"
 
-    # Insert before the Rainy Day Projects section (or at end)
-    content = TODO_PATH.read_text()
-    if "## Rainy Day Projects" in content:
-        content = content.replace("## Rainy Day Projects", entry + "\n## Rainy Day Projects")
-    else:
-        content += entry
+    with open(BRIEF_INBOX_PATH, "a") as f:
+        f.write(entry)
 
-    TODO_PATH.write_text(content)
-    print(f"  ✓ Action items written to TODO.md")
+    print(f"  ✓ Action items written to brief-inbox.md")
 
 # ─── Email Digest ─────────────────────────────────────────────────────────────
 

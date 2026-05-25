@@ -28,9 +28,9 @@ AYX_BRIEFS_DIR = AYX_DIR / "weekly-briefs"
 # ─── Collect this week's transcripts ─────────────────────────────────────────
 
 def week_dates(ref: date) -> list[date]:
-    """Return Mon–Sat dates for the week containing ref."""
+    """Return Mon–Sun dates for the week containing ref."""
     monday = ref - timedelta(days=ref.weekday())
-    return [monday + timedelta(days=i) for i in range(6)]  # Mon=0 … Sat=5
+    return [monday + timedelta(days=i) for i in range(7)]  # Mon=0 … Sun=6
 
 def load_transcripts(dates: list[date]) -> list[dict]:
     """Load regular + special brief transcripts for the given dates."""
@@ -288,18 +288,25 @@ def extract_top_stories_summary(html: str) -> str:
     return ", ".join(items[:5]) + "." if items else "Weekly tech digest."
 
 def update_ayx_index(new_entry: str, week_slug: str):
-    """Prepend new_entry to the brief-list div in weekly-briefs/index.html."""
+    """Prepend or update the entry for week_slug in weekly-briefs/index.html."""
     index_path = AYX_BRIEFS_DIR / "index.html"
     content = index_path.read_text()
     if f"{week_slug}.html" in content:
-        print(f"  ✓ Index already has entry for {week_slug} — skipping")
+        content = re.sub(
+            rf'<a href="{re.escape(week_slug)}\.html"[^>]*>.*?</a>',
+            new_entry.strip(),
+            content,
+            flags=re.DOTALL,
+        )
+        index_path.write_text(content)
+        print(f"  ✓ Index entry updated for {week_slug}")
         return
     marker = "<!-- Most recent first — new entries go at the TOP -->"
     if marker in content:
         content = content.replace(marker, marker + new_entry)
         index_path.write_text(content)
 
-def publish_to_ayx(email_html: str, week_label: str, week_slug: str, monday: date, saturday: date):
+def publish_to_ayx(email_html: str, week_label: str, week_slug: str, monday: date, week_end: date):
     if not AYX_DIR.exists():
         print(f"  ⚠ AYX directory not found at {AYX_DIR} — skipping")
         return
@@ -342,8 +349,8 @@ def main():
 
     dates  = week_dates(today)
     monday = dates[0]
-    saturday = dates[-1]
-    week_label = f"{monday.strftime('%B %d')} – {saturday.strftime('%B %d, %Y')}"
+    week_end = dates[-1]
+    week_label = f"{monday.strftime('%B %d')} – {week_end.strftime('%B %d, %Y')}"
     week_slug  = monday.strftime("%Y-W%V")
 
     print(f"\n📅  Weekly Recap — {week_label}")
@@ -381,7 +388,7 @@ def main():
     send_email(subject, html)
 
     print("\n🌐  Publishing to Augment Your Experience...")
-    publish_to_ayx(html, week_label, week_slug, monday, saturday)
+    publish_to_ayx(html, week_label, week_slug, monday, week_end)
 
     print(f"\n✅  Done. HTML at:\n    {out_html}\n")
 
