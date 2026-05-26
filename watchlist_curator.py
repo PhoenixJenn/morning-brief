@@ -22,8 +22,10 @@ CONTEXT_DIR  = PROJECT_DIR.parent / "claude_projects" / "context"
 OUTPUT_DIR   = PROJECT_DIR / "output"
 TRACKER_FILE = CONTEXT_DIR / "entity_tracker.json"
 WATCHLIST    = CONTEXT_DIR / "watchlist.md"
+THINGS_FILE  = CONTEXT_DIR / "things_to_try.json"
 
-PROMOTE_THRESHOLD = 3  # briefs mentioning an entity before auto-watchlist
+PROMOTE_THRESHOLD  = 3  # briefs mentioning an entity before auto-watchlist
+PRIORITY_WEIGHT    = {"high": 3, "med": 2}  # maps user flag → minimum tracker count
 
 client = anthropic.Anthropic()
 
@@ -248,6 +250,93 @@ def promote_candidates(tracker: dict, watchlist_names: set, date_str: str) -> li
     return promoted
 
 
+# ─── User signal sync ─────────────────────────────────────────────────────────
+
+def sync_user_signals(date_str: str = None, verbose: bool = True) -> list[str]:
+    """Merge user-flagged people/companies from things_to_try.json into entity_tracker.
+
+    HIGH-flagged entities get count bumped to at least 3 (auto-promotes immediately).
+    MED-flagged entities get count bumped to at least 2 (one more brief to promote).
+    """
+    if not THINGS_FILE.exists():
+        if verbose:
+            print("  [sync] things_to_try.json not found — skipping")
+        return []
+
+    if not date_str:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+
+    things   = json.loads(THINGS_FILE.read_text())
+    flagged  = [
+        t for t in things
+        if t.get("type") == "people_to_watch"
+        and t.get("priority") in PRIORITY_WEIGHT
+    ]
+
+    if not flagged:
+        return []
+
+    tracker        = load_tracker()
+    watchlist_names = load_watchlist_names()
+    all_ents       = tracker.setdefault("entities", {})
+    touched        = []
+
+    for item in flagged:
+        raw    = item["text"]
+        name   = re.split(r'[\(—]', raw)[0].strip().rstrip(',').strip()
+        if not name:
+            continue
+        weight = PRIORITY_WEIGHT[item["priority"]]
+        signal = "high" if item["priority"] == "high" else "medium"
+
+        if name not in all_ents:
+            all_ents[name] = {
+                "name":         name,
+                "category":     "",
+                "first_seen":   date_str,
+                "last_seen":    date_str,
+                "count":        0,
+                "on_watchlist": False,
+                "mentions":     [],
+            }
+
+        e = all_ents[name]
+        if e["count"] < weight:
+            e["count"]     = weight
+            e["last_seen"] = date_str
+            e["mentions"].append({
+                "date":    date_str,
+                "context": f"User-flagged {item['priority'].upper()}: {raw[:120]}",
+                "signal":  signal,
+            })
+            e["mentions"] = e["mentions"][-60:]
+            touched.append(name)
+
+    tracker["last_updated"] = date_str
+    save_tracker(tracker)
+
+    promoted = promote_candidates(tracker, watchlist_names, date_str)
+
+    if promoted:
+        try:
+            import generate_intel
+            generate_intel.generate(verbose=verbose)
+        except Exception:
+            pass
+
+    if verbose and touched:
+        print(f"\n🔗  Signal sync — {len(touched)} entities updated from user flags")
+        for name in touched[:10]:
+            e = all_ents[name]
+            bar = "█" * e["count"] + "░" * max(0, PROMOTE_THRESHOLD - e["count"])
+            tag = " ★ promoted" if name in promoted else ""
+            print(f"    {bar}  {name}  ({e['count']}/{PROMOTE_THRESHOLD}){tag}")
+        if len(touched) > 10:
+            print(f"    … and {len(touched) - 10} more")
+
+    return promoted
+
+
 # ─── Entry points ─────────────────────────────────────────────────────────────
 
 def run(date_str: str = None, verbose: bool = True) -> list[str]:
@@ -279,6 +368,13 @@ def run(date_str: str = None, verbose: bool = True) -> list[str]:
 
     update_existing_rows(tracker, watchlist_names, date_str)
     promoted = promote_candidates(tracker, watchlist_names, date_str)
+
+    if promoted:
+        try:
+            import generate_intel
+            generate_intel.generate(verbose=verbose)
+        except Exception:
+            pass
 
     if verbose:
         print(f"  {len(entities)} entities tracked")

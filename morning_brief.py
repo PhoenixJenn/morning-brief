@@ -209,6 +209,61 @@ def fetch_articles(seen_titles: set) -> tuple[dict, set]:
 
     return results, new_titles
 
+# ─── Watch Context ────────────────────────────────────────────────────────────
+
+_CONTEXT_DIR  = PROJECT_DIR.parent / "claude_projects" / "context"
+THINGS_FILE   = _CONTEXT_DIR / "things_to_try.json"
+WATCHLIST_MD  = _CONTEXT_DIR / "watchlist.md"
+
+def load_watch_context() -> str:
+    """Build a watch-context block to inject into the briefing prompt.
+
+    Pulls: (1) entity names from watchlist.md Companies & People table,
+           (2) HIGH-priority stories from things_to_try.json.
+    Returns a formatted string ready to drop into the prompt, or "" if nothing found.
+    """
+    lines = []
+
+    # Watchlist entities
+    if WATCHLIST_MD.exists():
+        text    = WATCHLIST_MD.read_text()
+        section = re.search(r'## Companies & People\n(.+?)(?=\n---\n)', text, re.DOTALL)
+        if section:
+            names = []
+            for row in section.group(1).split('\n'):
+                m = re.match(r'\|\s*(.+?)\s*\|', row)
+                if m:
+                    name = m.group(1).strip()
+                    if name and name != 'Name' and not re.match(r'^[-\s]+$', name):
+                        names.append(name)
+            if names:
+                lines.append("ENTITIES TO WATCH (flag when these appear in any story):")
+                lines.append(", ".join(names))
+                lines.append("")
+
+    # HIGH-priority stories
+    if THINGS_FILE.exists():
+        things = json.loads(THINGS_FILE.read_text())
+        high_stories = [
+            t["text"] for t in things
+            if t.get("type") == "stories_to_follow" and t.get("priority") == "high"
+        ]
+        if high_stories:
+            lines.append("ONGOING STORIES TO PRIORITIZE (cover any new developments on these):")
+            for s in high_stories[:20]:
+                lines.append(f"- {s}")
+            lines.append("")
+
+    if not lines:
+        return ""
+
+    return (
+        "WATCH CONTEXT — use this to prioritize coverage and make connections:\n"
+        + "\n".join(lines)
+        + "\n"
+    )
+
+
 # ─── Generate Briefing ────────────────────────────────────────────────────────
 
 def generate_briefing(articles: dict) -> str:
@@ -222,7 +277,8 @@ def generate_briefing(articles: dict) -> str:
             if a["summary"]:
                 article_text += f"  {a['summary']}\n"
 
-    today_pretty = datetime.now().strftime("%A, %B %d, %Y")
+    today_pretty  = datetime.now().strftime("%A, %B %d, %Y")
+    watch_context = load_watch_context()
 
     prompt = f"""You are writing a spoken audio news briefing for a senior tech leader working in AI and spatial computing. She listens during her ~1 hour morning commute.
 
@@ -255,7 +311,7 @@ EDITORIAL RULES:
 - If a section had no meaningful news today, say so in one sentence and move on
 - Prioritize stories with real implications over press releases
 
-TODAY'S ARTICLES:
+{watch_context}TODAY'S ARTICLES:
 {article_text}
 
 Write the full briefing script now:"""

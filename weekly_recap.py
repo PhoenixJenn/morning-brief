@@ -4,8 +4,10 @@ Weekly Recap — comprehensive digest of the week's Morning Brief transcripts.
 Runs Sunday morning. Produces a blog-ready markdown post + email digest.
 """
 
+import json
 import os
 import re
+import shutil
 import smtplib
 import subprocess
 import sys
@@ -18,12 +20,66 @@ import anthropic
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 
-PROJECT_DIR    = Path(__file__).parent
-OUTPUT_DIR     = PROJECT_DIR / "output"
-EMAIL_SENDER   = "ClaudeCode9000@gmail.com"
+PROJECT_DIR     = Path(__file__).parent
+OUTPUT_DIR      = PROJECT_DIR / "output"
+LOG_DIR         = PROJECT_DIR / "logs"
+ERROR_LOG       = LOG_DIR / "errors.log"
+EMAIL_SENDER    = "ClaudeCode9000@gmail.com"
 EMAIL_RECIPIENT = "phoenixjenn@gmail.com"
-AYX_DIR        = PROJECT_DIR.parent / "augmentyourexperience-www"
-AYX_BRIEFS_DIR = AYX_DIR / "weekly-briefs"
+AYX_DIR         = PROJECT_DIR.parent / "augmentyourexperience-www"
+AYX_BRIEFS_DIR  = AYX_DIR / "weekly-briefs"
+MODELS_SRC      = PROJECT_DIR.parent / "claude_projects" / "context" / "frontier-models.json"
+MODELS_DEST     = AYX_DIR / "data" / "frontier-models.json"
+
+
+# ─── Error Logging & Alerting ─────────────────────────────────────────────────
+
+def send_alert_email(step: str, exc: Exception, tb: str = "") -> None:
+    """Send an urgent failure alert via Gmail. Never raises."""
+    password = os.environ.get("GMAIL_APP_PASSWORD", "").replace("\xa0", "").replace(" ", "")
+    if not password:
+        print("  ⚠ GMAIL_APP_PASSWORD not set — skipping alert email")
+        return
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    subject = f"🚨 Weekly Recap FAILED — {step} ({ts[:10]})"
+    tb_escaped = tb.replace("<", "&lt;").replace(">", "&gt;")
+    html = f"""<html><body style="font-family:monospace;background:#1a1a1a;color:#e0e0e0;padding:20px;max-width:680px;margin:auto;">
+<h2 style="color:#f87171;margin-top:0;">Weekly Recap Job Failed</h2>
+<table style="border-collapse:collapse;margin-bottom:16px;">
+  <tr><td style="color:#888;padding-right:12px;">Step</td><td style="color:#fbbf24;">{step}</td></tr>
+  <tr><td style="color:#888;padding-right:12px;">Error</td><td>{exc}</td></tr>
+  <tr><td style="color:#888;padding-right:12px;">Time</td><td>{ts}</td></tr>
+</table>
+<pre style="background:#111;padding:12px;border-radius:6px;font-size:0.8em;color:#f97316;overflow-x:auto;">{tb_escaped}</pre>
+<p style="color:#555;font-size:0.8em;">Log: {ERROR_LOG}<br>
+Retry: <code style="color:#888;">python weekly_recap.py</code></p>
+</body></html>"""
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"]    = EMAIL_SENDER
+        msg["To"]      = EMAIL_RECIPIENT
+        msg.attach(MIMEText(html, "html"))
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(EMAIL_SENDER, password)
+            smtp.sendmail(EMAIL_SENDER, EMAIL_RECIPIENT, msg.as_string())
+        print(f"  ✓ Alert email sent to {EMAIL_RECIPIENT}")
+    except Exception as mail_err:
+        print(f"  ⚠ Could not send alert email: {mail_err}")
+
+
+def log_error(step: str, exc: Exception) -> None:
+    """Append to errors.log and send alert email."""
+    import traceback
+    LOG_DIR.mkdir(exist_ok=True)
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    tb = traceback.format_exc()
+    entry = f"\n{'='*52}\n[{ts}] WEEKLY RECAP — STEP: {step}\nERROR: {exc}\n\nTRACEBACK:\n{tb}\n"
+    with open(ERROR_LOG, "a") as f:
+        f.write(entry)
+    print(f"  ✗ ERROR in '{step}': {exc}")
+    send_alert_email(step, exc, tb)
+
 
 # ─── Collect this week's transcripts ─────────────────────────────────────────
 
@@ -306,6 +362,38 @@ def update_ayx_index(new_entry: str, week_slug: str):
         content = content.replace(marker, marker + new_entry)
         index_path.write_text(content)
 
+def clear_new_event_flags() -> bool:
+    """Strip new:true from all events in data/events.json. Returns True if any were cleared."""
+    events_path = AYX_DIR / "data" / "events.json"
+    if not events_path.exists():
+        return False
+    events = json.loads(events_path.read_text())
+    changed = any(e.get("new") for e in events)
+    if changed:
+        for e in events:
+            e["new"] = False
+        events_path.write_text(json.dumps(events, indent=2, ensure_ascii=False))
+        print("  ✓ Cleared NEW flags from events.json")
+    return changed
+
+
+def sync_frontier_models() -> bool:
+    """Copy frontier-models.json to AYX data dir. Returns True if file was updated."""
+    if not MODELS_SRC.exists():
+        print(f"  ⚠ frontier-models.json not found at {MODELS_SRC} — skipping")
+        return False
+    MODELS_DEST.parent.mkdir(exist_ok=True)
+    src_text  = MODELS_SRC.read_text()
+    dest_text = MODELS_DEST.read_text() if MODELS_DEST.exists() else ""
+    if src_text == dest_text:
+        print("  ✓ frontier-models.json unchanged — no sync needed")
+        return False
+    shutil.copy2(MODELS_SRC, MODELS_DEST)
+    src_meta = json.loads(src_text).get("meta", {})
+    print(f"  ✓ frontier-models.json synced (last_updated: {src_meta.get('last_updated', '?')})")
+    return True
+
+
 def publish_to_ayx(email_html: str, week_label: str, week_slug: str, monday: date, week_end: date):
     if not AYX_DIR.exists():
         print(f"  ⚠ AYX directory not found at {AYX_DIR} — skipping")
@@ -329,6 +417,10 @@ def publish_to_ayx(email_html: str, week_label: str, week_slug: str, monday: dat
     # Commit and push AYX
     try:
         subprocess.run(["git", "-C", str(AYX_DIR), "add", "weekly-briefs/"], check=True)
+        clear_new_event_flags()
+        subprocess.run(["git", "-C", str(AYX_DIR), "add", "data/events.json"], check=True)
+        if sync_frontier_models():
+            subprocess.run(["git", "-C", str(AYX_DIR), "add", "data/frontier-models.json"], check=True)
         check_staged_images()
         subprocess.run(["git", "-C", str(AYX_DIR), "commit", "-m",
                         f"Weekly Brief {week_slug} — {week_label}"], check=True)
@@ -364,7 +456,11 @@ def main():
     print(f"  ✓ {len(transcripts)} transcript(s) loaded ({', '.join(t['date'] for t in transcripts)})")
 
     print("\n✍️   Generating weekly recap with Claude...")
-    raw = generate_weekly_recap(transcripts, week_label)
+    try:
+        raw = generate_weekly_recap(transcripts, week_label)
+    except Exception as e:
+        log_error("generate_weekly_recap", e)
+        raise
 
     # Strip markdown code fences if model wraps response
     raw = raw.strip()
@@ -385,12 +481,30 @@ def main():
     print(f"  ✓ Saved email HTML: {out_html}")
 
     print("\n📧  Sending email digest...")
-    send_email(subject, html)
+    try:
+        send_email(subject, html)
+    except Exception as e:
+        log_error("send_email (weekly)", e)
+        print("  ⚠ Email send failed — continuing")
 
     print("\n🌐  Publishing to Augment Your Experience...")
-    publish_to_ayx(html, week_label, week_slug, monday, week_end)
+    try:
+        publish_to_ayx(html, week_label, week_slug, monday, week_end)
+    except Exception as e:
+        log_error("publish_to_ayx", e)
+        raise
 
     print(f"\n✅  Done. HTML at:\n    {out_html}\n")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        LOG_DIR.mkdir(exist_ok=True)
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(ERROR_LOG, "a") as f:
+            f.write(f"\n{'='*52}\n[{ts}] WEEKLY RECAP — UNHANDLED CRASH\n{tb}\n")
+        send_alert_email("unhandled crash", e, tb)
+        raise SystemExit(1)
