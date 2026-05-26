@@ -103,5 +103,13 @@
       <guid isPermaLink="false">9ad0515e4b86e7c580a0a61ea0016a99</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, May 26</title>
+      <pubDate>Tue, 26 May 2026 05:41:08 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-26.mp3" length="20952000" type="audio/mpeg"/>
+      <guid isPermaLink="false">ae7b3b1b532e67c233b844a5289e3804</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
