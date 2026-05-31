@@ -143,5 +143,13 @@
       <guid isPermaLink="false">7cd48b35f433d9116a26003717c71748</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Sunday, May 31</title>
+      <pubDate>Sun, 31 May 2026 05:41:14 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-31.mp3" length="22770720" type="audio/mpeg"/>
+      <guid isPermaLink="false">dd178a17372d4820cb036bf939e866fd</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
