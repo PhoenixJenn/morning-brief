@@ -24,13 +24,7 @@
       <guid isPermaLink="false">morning-brief-2026-05-19</guid>
       <itunes:duration>9180</itunes:duration>
     </item>
-    <item>
-      <title>Morning Brief — Monday, May 18</title>
-      <pubDate>Mon, 18 May 2026 15:40:46 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-18.mp3" length="19524960" type="audio/mpeg"/>
-      <guid isPermaLink="false">morning-brief-2026-05-18</guid>
-      <itunes:duration>8100</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Wednesday, May 20</title>
@@ -149,6 +143,14 @@
       <pubDate>Sun, 31 May 2026 05:41:14 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-31.mp3" length="22770720" type="audio/mpeg"/>
       <guid isPermaLink="false">dd178a17372d4820cb036bf939e866fd</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Monday, June 01</title>
+      <pubDate>Mon, 01 Jun 2026 05:41:40 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-01.mp3" length="22598400" type="audio/mpeg"/>
+      <guid isPermaLink="false">a90005982993d55ee0314dce46b58cc4</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
