@@ -10,20 +10,8 @@
     <itunes:image href="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/morningbrief.jpg"/>
     <itunes:category text="Technology"/>
     <itunes:explicit>false</itunes:explicit>
-    <item>
-      <title>Special Brief — Google I/O 2026, Tuesday, May 19</title>
-      <pubDate>Tue, 19 May 2026 13:30:00 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-05-19-google-io-2026.mp3" length="1680000" type="audio/mpeg"/>
-      <guid isPermaLink="false">special-2026-05-19-google-io-2026</guid>
-      <itunes:duration>900</itunes:duration>
-    </item>
-    <item>
-      <title>Morning Brief — Tuesday, May 19</title>
-      <pubDate>Tue, 19 May 2026 13:00:00 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-19.mp3" length="22125120" type="audio/mpeg"/>
-      <guid isPermaLink="false">morning-brief-2026-05-19</guid>
-      <itunes:duration>9180</itunes:duration>
-    </item>
+    
+    
     
   
     <item>
@@ -151,6 +139,14 @@
       <pubDate>Mon, 01 Jun 2026 05:41:40 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-01.mp3" length="22598400" type="audio/mpeg"/>
       <guid isPermaLink="false">a90005982993d55ee0314dce46b58cc4</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, June 02</title>
+      <pubDate>Tue, 02 Jun 2026 05:39:45 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-02.mp3" length="18462720" type="audio/mpeg"/>
+      <guid isPermaLink="false">4576d0a881e3b1ccc752b84f37e3d3e0</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
