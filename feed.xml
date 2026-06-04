@@ -18,21 +18,9 @@
   
     
   
-    <item>
-      <title>Morning Brief — Thursday, May 21</title>
-      <pubDate>Thu, 21 May 2026 05:39:37 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-21.mp3" length="22501920" type="audio/mpeg"/>
-      <guid isPermaLink="false">48648d9ca7792303896a455d181e28fd</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — Google I/O 2026</title>
-      <pubDate>Thu, 21 May 2026 05:40:29 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-05-21-google-io-2026.mp3" length="3300000" type="audio/mpeg"/>
-      <guid isPermaLink="false">028e97a56d7007a342ef85ad3574cd46</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Friday, May 22</title>
@@ -143,6 +131,14 @@
       <pubDate>Wed, 03 Jun 2026 05:40:42 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-03.mp3" length="22924320" type="audio/mpeg"/>
       <guid isPermaLink="false">3f9851f7d46c1f0941c30844646d518e</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Thursday, June 04</title>
+      <pubDate>Thu, 04 Jun 2026 05:39:32 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-04.mp3" length="18473280" type="audio/mpeg"/>
+      <guid isPermaLink="false">034acea83ed81bb9d8582a0af822ad0a</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
