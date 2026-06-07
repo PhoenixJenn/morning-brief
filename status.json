@@ -1,8 +1,10 @@
 {
-  "date": "2026-06-05",
-  "run_at": "2026-06-05 05:40:49",
+  "date": "2026-06-07",
+  "run_at": "2026-06-07 05:42:08",
   "regular_brief": true,
-  "special_brief": false,
-  "active_events": [],
+  "special_brief": true,
+  "active_events": [
+    "WWDC 2026"
+  ],
   "status": "ok"
 }

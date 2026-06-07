@@ -26,21 +26,9 @@
   
     
   
-    <item>
-      <title>Morning Brief — Saturday, May 23</title>
-      <pubDate>Sat, 23 May 2026 18:41:29 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-23.mp3" length="22248480" type="audio/mpeg"/>
-      <guid isPermaLink="false">7ba3f8fe26a042067ac1158826509ca5</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Sunday, May 24</title>
-      <pubDate>Sun, 24 May 2026 05:41:31 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-24.mp3" length="23595840" type="audio/mpeg"/>
-      <guid isPermaLink="false">e2483b002a3c54005f728f071e652ad1</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Monday, May 25</title>
@@ -135,6 +123,22 @@
       <pubDate>Fri, 05 Jun 2026 05:40:49 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-05.mp3" length="21740640" type="audio/mpeg"/>
       <guid isPermaLink="false">34c5e4cc957b41f8be3e5af083a70830</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Sunday, June 07</title>
+      <pubDate>Sun, 07 Jun 2026 05:40:44 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-07.mp3" length="23023200" type="audio/mpeg"/>
+      <guid isPermaLink="false">154935f77c1d820550e3f9ec8eca65b3</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — WWDC 2026</title>
+      <pubDate>Sun, 07 Jun 2026 05:42:08 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-06-07-wwdc-2026.mp3" length="4471680" type="audio/mpeg"/>
+      <guid isPermaLink="false">1b9a557bd9c51ca75411cecc51b128fa</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
