@@ -30,13 +30,7 @@
   
     
   
-    <item>
-      <title>Morning Brief — Monday, May 25</title>
-      <pubDate>Mon, 25 May 2026 05:41:58 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-25.mp3" length="23151360" type="audio/mpeg"/>
-      <guid isPermaLink="false">9ad0515e4b86e7c580a0a61ea0016a99</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Tuesday, May 26</title>
@@ -139,6 +133,22 @@
       <pubDate>Sun, 07 Jun 2026 05:42:08 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-06-07-wwdc-2026.mp3" length="4471680" type="audio/mpeg"/>
       <guid isPermaLink="false">1b9a557bd9c51ca75411cecc51b128fa</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Monday, June 08</title>
+      <pubDate>Mon, 08 Jun 2026 05:42:17 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-08.mp3" length="23425920" type="audio/mpeg"/>
+      <guid isPermaLink="false">fdd773b77700a5c7a9bda26915eb1b39</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — WWDC 2026, Gartner Summit Las Vegas 2026</title>
+      <pubDate>Mon, 08 Jun 2026 05:44:01 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-06-08-wwdc-2026.mp3" length="6476160" type="audio/mpeg"/>
+      <guid isPermaLink="false">990522417dba96bfe8958d534874710a</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
