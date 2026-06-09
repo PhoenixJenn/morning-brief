@@ -1,11 +1,13 @@
 {
-  "date": "2026-06-08",
-  "run_at": "2026-06-08 05:44:01",
+  "date": "2026-06-09",
+  "run_at": "2026-06-09 05:52:56",
   "regular_brief": true,
   "special_brief": true,
   "active_events": [
     "WWDC 2026",
-    "Gartner Summit Las Vegas 2026"
+    "Gartner Summit Las Vegas 2026",
+    "AWS Summit Washington DC 2026",
+    "Tribeca Film Festival 2026"
   ],
   "status": "ok"
 }
