@@ -36,13 +36,7 @@
   
     
   
-    <item>
-      <title>Morning Brief — Thursday, May 28</title>
-      <pubDate>Thu, 28 May 2026 05:42:05 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-28.mp3" length="21748320" type="audio/mpeg"/>
-      <guid isPermaLink="false">2ea21b77d0ec2fccb776423f3c5c5177</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Friday, May 29</title>
@@ -169,6 +163,22 @@
       <pubDate>Wed, 10 Jun 2026 05:53:10 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-06-10-wwdc-2026.mp3" length="7632480" type="audio/mpeg"/>
       <guid isPermaLink="false">9b2997c6efbe8525d21cb06c0c3612c7</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Thursday, June 11</title>
+      <pubDate>Thu, 11 Jun 2026 05:40:32 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-11.mp3" length="21600480" type="audio/mpeg"/>
+      <guid isPermaLink="false">f7bf02506a582c97e4206b6e7f6b9989</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — WWDC 2026, Gartner Summit Las Vegas 2026, AWS Summit Washington DC 2026, SpaceX IPO (SPCX), Tribeca Film Festival 2026</title>
+      <pubDate>Thu, 11 Jun 2026 05:42:24 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-06-11-wwdc-2026.mp3" length="7125600" type="audio/mpeg"/>
+      <guid isPermaLink="false">64a7e3d236285831d7249429057cb573</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
