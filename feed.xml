@@ -38,53 +38,17 @@
   
     
   
-    <item>
-      <title>Morning Brief — Friday, May 29</title>
-      <pubDate>Fri, 29 May 2026 05:47:33 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-29.mp3" length="22760160" type="audio/mpeg"/>
-      <guid isPermaLink="false">36fb79cc9711f855210e7e2490b6521d</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Saturday, May 30</title>
-      <pubDate>Sat, 30 May 2026 05:40:53 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-30.mp3" length="21954240" type="audio/mpeg"/>
-      <guid isPermaLink="false">7cd48b35f433d9116a26003717c71748</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Sunday, May 31</title>
-      <pubDate>Sun, 31 May 2026 05:41:14 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-05-31.mp3" length="22770720" type="audio/mpeg"/>
-      <guid isPermaLink="false">dd178a17372d4820cb036bf939e866fd</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Monday, June 01</title>
-      <pubDate>Mon, 01 Jun 2026 05:41:40 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-01.mp3" length="22598400" type="audio/mpeg"/>
-      <guid isPermaLink="false">a90005982993d55ee0314dce46b58cc4</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Tuesday, June 02</title>
-      <pubDate>Tue, 02 Jun 2026 05:39:45 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-02.mp3" length="18462720" type="audio/mpeg"/>
-      <guid isPermaLink="false">4576d0a881e3b1ccc752b84f37e3d3e0</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Wednesday, June 03</title>
-      <pubDate>Wed, 03 Jun 2026 05:40:42 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-03.mp3" length="22924320" type="audio/mpeg"/>
-      <guid isPermaLink="false">3f9851f7d46c1f0941c30844646d518e</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Thursday, June 04</title>
@@ -202,6 +166,22 @@
       <title>Special Brief — Tribeca Film Festival 2026, AWE USA 2026</title>
       <pubDate>Tue, 16 Jun 2026 21:35:22 +0000</pubDate>
       <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/special-2026-06-16-tribeca-film-festival-20.mp3" length="4404480" type="audio/mpeg"/>
+      <guid isPermaLink="false">4180387946a54c7b6dd5a830444db8f2</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Wednesday, June 17</title>
+      <pubDate>Wed, 17 Jun 2026 06:00:56 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-17.mp3" length="20805600" type="audio/mpeg"/>
+      <guid isPermaLink="false">d7a1eb348a45154ee45dc3901e4b9ae5</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Tribeca Film Festival 2026, AWE USA 2026</title>
+      <pubDate>Wed, 17 Jun 2026 06:02:00 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-06-17-tribeca-film-festival-20.mp3" length="2952480" type="audio/mpeg"/>
       <guid isPermaLink="false">4180387946a54c7b6dd5a830444db8f2</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
