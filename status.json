@@ -1,14 +1,11 @@
 {
-  "date": "2026-06-11",
-  "run_at": "2026-06-11 05:42:24",
+  "date": "2026-06-16",
+  "run_at": "2026-06-16 21:35:22",
   "regular_brief": true,
   "special_brief": true,
   "active_events": [
-    "WWDC 2026",
-    "Gartner Summit Las Vegas 2026",
-    "AWS Summit Washington DC 2026",
-    "SpaceX IPO (SPCX)",
-    "Tribeca Film Festival 2026"
+    "Tribeca Film Festival 2026",
+    "AWE USA 2026"
   ],
   "status": "ok"
 }

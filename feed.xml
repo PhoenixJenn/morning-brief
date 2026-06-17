@@ -181,5 +181,29 @@
       <guid isPermaLink="false">64a7e3d236285831d7249429057cb573</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Friday, June 12</title>
+      <pubDate>Fri, 12 Jun 2026 05:40:26 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-12.mp3" length="22641600" type="audio/mpeg"/>
+      <guid isPermaLink="false">e9b6dd8d6862253caacaba345c907a5d</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, June 16</title>
+      <pubDate>Tue, 16 Jun 2026 21:34:10 +0000</pubDate>
+      <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/brief-2026-06-16.mp3" length="22263840" type="audio/mpeg"/>
+      <guid isPermaLink="false">1b21ad2bf77ffe89e8ed3e5d70ff26a2</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Tribeca Film Festival 2026, AWE USA 2026</title>
+      <pubDate>Tue, 16 Jun 2026 21:35:22 +0000</pubDate>
+      <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/special-2026-06-16-tribeca-film-festival-20.mp3" length="4404480" type="audio/mpeg"/>
+      <guid isPermaLink="false">4180387946a54c7b6dd5a830444db8f2</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
