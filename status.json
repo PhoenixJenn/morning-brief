@@ -1,11 +1,10 @@
 {
-  "date": "2026-06-18",
-  "run_at": "2026-06-18 07:45:45",
+  "date": "2026-06-23",
+  "run_at": "2026-06-23 06:40:28",
   "regular_brief": true,
-  "special_brief": true,
+  "special_brief": false,
   "active_events": [
-    "Tribeca Film Festival 2026",
-    "AWE USA 2026"
+    "Tribeca Film Festival 2026"
   ],
   "status": "ok"
 }

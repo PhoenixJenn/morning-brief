@@ -201,5 +201,13 @@
       <guid isPermaLink="false">4180387946a54c7b6dd5a830444db8f2</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, June 23</title>
+      <pubDate>Tue, 23 Jun 2026 06:40:28 +0000</pubDate>
+      <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/brief-2026-06-23.mp3" length="19846080" type="audio/mpeg"/>
+      <guid isPermaLink="false">b5b506ce02f00709c23e573f0fbd5b0c</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
