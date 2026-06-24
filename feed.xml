@@ -50,85 +50,25 @@
   
     
   
-    <item>
-      <title>Morning Brief — Thursday, June 04</title>
-      <pubDate>Thu, 04 Jun 2026 05:39:32 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-04.mp3" length="18473280" type="audio/mpeg"/>
-      <guid isPermaLink="false">034acea83ed81bb9d8582a0af822ad0a</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Friday, June 05</title>
-      <pubDate>Fri, 05 Jun 2026 05:40:49 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-05.mp3" length="21740640" type="audio/mpeg"/>
-      <guid isPermaLink="false">34c5e4cc957b41f8be3e5af083a70830</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Sunday, June 07</title>
-      <pubDate>Sun, 07 Jun 2026 05:40:44 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-07.mp3" length="23023200" type="audio/mpeg"/>
-      <guid isPermaLink="false">154935f77c1d820550e3f9ec8eca65b3</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — WWDC 2026</title>
-      <pubDate>Sun, 07 Jun 2026 05:42:08 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-06-07-wwdc-2026.mp3" length="4471680" type="audio/mpeg"/>
-      <guid isPermaLink="false">1b9a557bd9c51ca75411cecc51b128fa</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Monday, June 08</title>
-      <pubDate>Mon, 08 Jun 2026 05:42:17 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-08.mp3" length="23425920" type="audio/mpeg"/>
-      <guid isPermaLink="false">fdd773b77700a5c7a9bda26915eb1b39</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — WWDC 2026, Gartner Summit Las Vegas 2026</title>
-      <pubDate>Mon, 08 Jun 2026 05:44:01 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-06-08-wwdc-2026.mp3" length="6476160" type="audio/mpeg"/>
-      <guid isPermaLink="false">990522417dba96bfe8958d534874710a</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Tuesday, June 09</title>
-      <pubDate>Tue, 09 Jun 2026 05:50:14 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-09.mp3" length="19854240" type="audio/mpeg"/>
-      <guid isPermaLink="false">face0dcdd0a210baa2e55dbf95f74d77</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — WWDC 2026, Gartner Summit Las Vegas 2026, AWS Summit Washington DC 2026, Tribeca Film Festival 2026</title>
-      <pubDate>Tue, 09 Jun 2026 05:52:56 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-06-09-wwdc-2026.mp3" length="9197760" type="audio/mpeg"/>
-      <guid isPermaLink="false">9b2997c6efbe8525d21cb06c0c3612c7</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Wednesday, June 10</title>
-      <pubDate>Wed, 10 Jun 2026 05:45:55 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-10.mp3" length="21103200" type="audio/mpeg"/>
-      <guid isPermaLink="false">b165d68411995b2e47da685a104c4561</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — WWDC 2026, Gartner Summit Las Vegas 2026, AWS Summit Washington DC 2026, Tribeca Film Festival 2026</title>
-      <pubDate>Wed, 10 Jun 2026 05:53:10 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-06-10-wwdc-2026.mp3" length="7632480" type="audio/mpeg"/>
-      <guid isPermaLink="false">9b2997c6efbe8525d21cb06c0c3612c7</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Thursday, June 11</title>
@@ -207,6 +147,14 @@
       <pubDate>Tue, 23 Jun 2026 06:40:28 +0000</pubDate>
       <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/brief-2026-06-23.mp3" length="19846080" type="audio/mpeg"/>
       <guid isPermaLink="false">b5b506ce02f00709c23e573f0fbd5b0c</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Wednesday, June 24</title>
+      <pubDate>Wed, 24 Jun 2026 05:40:23 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-24.mp3" length="20714880" type="audio/mpeg"/>
+      <guid isPermaLink="false">b02fc5043fbc98e9ea960c2367387a81</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
