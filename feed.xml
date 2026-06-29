@@ -155,5 +155,13 @@
       <guid isPermaLink="false">8330705bc11df31b44b53316a8252972</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Monday, June 29</title>
+      <pubDate>Mon, 29 Jun 2026 05:40:48 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-06-29.mp3" length="18507360" type="audio/mpeg"/>
+      <guid isPermaLink="false">f4a6e60af08d34337fd25edc94751b0d</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
