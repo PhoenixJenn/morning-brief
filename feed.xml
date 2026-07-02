@@ -167,5 +167,13 @@
       <guid isPermaLink="false">8c5d412c87f2b18afbd6400a0b4f0ced</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Thursday, July 02</title>
+      <pubDate>Thu, 02 Jul 2026 05:41:22 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-02.mp3" length="20882880" type="audio/mpeg"/>
+      <guid isPermaLink="false">07593387128238bc6cc5f05fdbee9132</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
