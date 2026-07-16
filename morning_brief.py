@@ -10,6 +10,7 @@ import json
 import hashlib
 import subprocess
 import tempfile
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -1003,7 +1004,15 @@ def main():
     all_articles, new_titles = fetch_articles(seen_titles)
 
     if not all_articles:
-        print("  No articles found. Check your network connection.")
+        for attempt in range(1, 4):
+            print(f"  No articles found — retrying in 60s (attempt {attempt}/3)...")
+            time.sleep(60)
+            all_articles, new_titles = fetch_articles(seen_titles)
+            if all_articles:
+                break
+
+    if not all_articles:
+        print("  No articles found after retries. Check your network connection.")
         return
 
     # Partition articles on event days
@@ -1060,6 +1069,14 @@ def main():
             log_error("watchlist_curator", e, today)
             print("  ⚠ Watchlist curator failed — continuing")
 
+        print("\n🔀  Auto-triaging inbox items...")
+        try:
+            import auto_triage
+            auto_triage.run(today)
+        except Exception as e:
+            log_error("auto_triage", e, today)
+            print("  ⚠ Auto-triage failed — continuing")
+
         print("\n📅  Scanning for new events...")
         try:
             new_events = extract_new_events(briefing)
@@ -1082,7 +1099,7 @@ def main():
             produce_episode(briefing, f"brief-{today}", title)
         except Exception as e:
             log_error("produce_episode", e, today)
-            raise
+            print("  ⚠ Audio generation failed — email digest was already sent; continuing to GitHub push")
 
     # ── Special brief ──
     if event_articles and active_events:
@@ -1115,7 +1132,7 @@ def main():
             produce_episode(special, f"special-{today}-{slug}", special_title)
         except Exception as e:
             log_error("produce_episode (special)", e, today)
-            raise
+            print("  ⚠ Special Brief audio failed — continuing to GitHub push")
 
     print("\n📻  Feed updated")
     save_seen_titles(seen_titles | new_titles)
