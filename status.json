@@ -1,8 +1,10 @@
 {
-  "date": "2026-07-20",
-  "run_at": "2026-07-20 05:38:21",
+  "date": "2026-07-21",
+  "run_at": "2026-07-21 05:40:34",
   "regular_brief": true,
-  "special_brief": false,
-  "active_events": [],
+  "special_brief": true,
+  "active_events": [
+    "Samsung Galaxy Unpacked"
+  ],
   "status": "ok"
 }

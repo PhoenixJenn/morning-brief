@@ -191,5 +191,21 @@
       <guid isPermaLink="false">8d6ee2883830fd74d190a2fc33829e93</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, July 21</title>
+      <pubDate>Tue, 21 Jul 2026 05:39:49 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-21.mp3" length="20987040" type="audio/mpeg"/>
+      <guid isPermaLink="false">1e33780ccc2beeb67d74b66f7a66340e</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Samsung Galaxy Unpacked</title>
+      <pubDate>Tue, 21 Jul 2026 05:40:34 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-07-21-samsung-galaxy-unpacked.mp3" length="2379840" type="audio/mpeg"/>
+      <guid isPermaLink="false">7c845eca121af84ecdedc2bf2614b6fc</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
