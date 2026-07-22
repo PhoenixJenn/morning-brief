@@ -207,5 +207,21 @@
       <guid isPermaLink="false">7c845eca121af84ecdedc2bf2614b6fc</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Wednesday, July 22</title>
+      <pubDate>Wed, 22 Jul 2026 05:39:20 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-22.mp3" length="19976160" type="audio/mpeg"/>
+      <guid isPermaLink="false">c03027c6ac6f61a353748bdd93fdedc7</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — San Diego Comic-Con 2026, Samsung Galaxy Unpacked</title>
+      <pubDate>Wed, 22 Jul 2026 05:40:29 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-07-22-san-diego-comic-con-2026.mp3" length="3877920" type="audio/mpeg"/>
+      <guid isPermaLink="false">0341a4dfbf07a6263467a2235fc3464d</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
