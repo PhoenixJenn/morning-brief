@@ -1004,9 +1004,9 @@ def main():
     all_articles, new_titles = fetch_articles(seen_titles)
 
     if not all_articles:
-        for attempt in range(1, 4):
-            print(f"  No articles found — retrying in 60s (attempt {attempt}/3)...")
-            time.sleep(60)
+        for attempt in range(1, 6):
+            print(f"  No articles found — retrying in 90s (attempt {attempt}/5)...")
+            time.sleep(90)
             all_articles, new_titles = fetch_articles(seen_titles)
             if all_articles:
                 break
