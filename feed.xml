@@ -136,21 +136,9 @@
   
     
   
-    <item>
-      <title>Morning Brief — Sunday, July 12</title>
-      <pubDate>Sun, 12 Jul 2026 20:02:36 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-12.mp3" length="22347840" type="audio/mpeg"/>
-      <guid isPermaLink="false">45308c78d5c2871fe97867ff8b0e8484</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Monday, July 13</title>
-      <pubDate>Mon, 13 Jul 2026 05:41:24 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-13.mp3" length="22480800" type="audio/mpeg"/>
-      <guid isPermaLink="false">fc0895f840ff850a12adde5a71bfb941</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Tuesday, July 14</title>
@@ -237,6 +225,22 @@
       <pubDate>Fri, 24 Jul 2026 07:11:34 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-07-24-san-diego-comic-con-2026.mp3" length="4754880" type="audio/mpeg"/>
       <guid isPermaLink="false">0341a4dfbf07a6263467a2235fc3464d</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Monday, July 27</title>
+      <pubDate>Mon, 27 Jul 2026 05:41:50 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-27.mp3" length="20951040" type="audio/mpeg"/>
+      <guid isPermaLink="false">505b47c852116eaceb65dfc16d9c19ad</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — San Diego Comic-Con 2026</title>
+      <pubDate>Mon, 27 Jul 2026 05:42:55 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-07-27-san-diego-comic-con-2026.mp3" length="3248640" type="audio/mpeg"/>
+      <guid isPermaLink="false">d548c7da018d8bc1ce527d220e84d6ed</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>

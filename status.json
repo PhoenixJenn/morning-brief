@@ -1,11 +1,10 @@
 {
-  "date": "2026-07-24",
-  "run_at": "2026-07-24 07:11:34",
+  "date": "2026-07-27",
+  "run_at": "2026-07-27 05:42:55",
   "regular_brief": true,
   "special_brief": true,
   "active_events": [
-    "San Diego Comic-Con 2026",
-    "Samsung Galaxy Unpacked"
+    "San Diego Comic-Con 2026"
   ],
   "status": "ok"
 }
