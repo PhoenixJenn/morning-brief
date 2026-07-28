@@ -140,13 +140,7 @@
   
     
   
-    <item>
-      <title>Morning Brief — Tuesday, July 14</title>
-      <pubDate>Tue, 14 Jul 2026 05:40:08 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-14.mp3" length="19290240" type="audio/mpeg"/>
-      <guid isPermaLink="false">293a340746d486a034125964b5e69717</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Wednesday, July 15</title>
@@ -241,6 +235,14 @@
       <pubDate>Mon, 27 Jul 2026 05:42:55 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-07-27-san-diego-comic-con-2026.mp3" length="3248640" type="audio/mpeg"/>
       <guid isPermaLink="false">d548c7da018d8bc1ce527d220e84d6ed</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, July 28</title>
+      <pubDate>Tue, 28 Jul 2026 05:41:07 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-28.mp3" length="21075840" type="audio/mpeg"/>
+      <guid isPermaLink="false">30905dba950c646d3801d85048e779f0</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
