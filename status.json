@@ -1,10 +1,8 @@
 {
-  "date": "2026-07-28",
-  "run_at": "2026-07-28 05:41:07",
+  "date": "2026-07-29",
+  "run_at": "2026-07-29 05:39:22",
   "regular_brief": true,
   "special_brief": false,
-  "active_events": [
-    "San Diego Comic-Con 2026"
-  ],
+  "active_events": [],
   "status": "ok"
 }
