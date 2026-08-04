@@ -150,21 +150,9 @@
   
     
   
-    <item>
-      <title>Morning Brief — Tuesday, July 21</title>
-      <pubDate>Tue, 21 Jul 2026 05:39:49 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-21.mp3" length="20987040" type="audio/mpeg"/>
-      <guid isPermaLink="false">1e33780ccc2beeb67d74b66f7a66340e</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — Samsung Galaxy Unpacked</title>
-      <pubDate>Tue, 21 Jul 2026 05:40:34 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-07-21-samsung-galaxy-unpacked.mp3" length="2379840" type="audio/mpeg"/>
-      <guid isPermaLink="false">7c845eca121af84ecdedc2bf2614b6fc</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Wednesday, July 22</title>
@@ -251,6 +239,14 @@
       <pubDate>Mon, 03 Aug 2026 05:37:30 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-03.mp3" length="14345856" type="audio/mpeg"/>
       <guid isPermaLink="false">5109aa3b15f60dfb2b698d26cb9535c7</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, August 04</title>
+      <pubDate>Tue, 04 Aug 2026 05:38:13 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-04.mp3" length="17317632" type="audio/mpeg"/>
+      <guid isPermaLink="false">611b0ba4d2a40705c8b34465ec52826d</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
