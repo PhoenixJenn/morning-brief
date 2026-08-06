@@ -245,5 +245,13 @@
       <guid isPermaLink="false">91bca9971c7b4ee53366cc69c8417970</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Thursday, August 06</title>
+      <pubDate>Thu, 06 Aug 2026 05:37:29 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-06.mp3" length="15467904" type="audio/mpeg"/>
+      <guid isPermaLink="false">1e26800406fe9d4b3a75fe47cef94452</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
