@@ -158,21 +158,9 @@
   
     
   
-    <item>
-      <title>Morning Brief — Friday, July 24</title>
-      <pubDate>Fri, 24 Jul 2026 07:10:07 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-24.mp3" length="21956160" type="audio/mpeg"/>
-      <guid isPermaLink="false">1af8a0654e092179fddae502859b3b49</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — San Diego Comic-Con 2026, Samsung Galaxy Unpacked</title>
-      <pubDate>Fri, 24 Jul 2026 07:11:34 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-07-24-san-diego-comic-con-2026.mp3" length="4754880" type="audio/mpeg"/>
-      <guid isPermaLink="false">0341a4dfbf07a6263467a2235fc3464d</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Monday, July 27</title>
@@ -251,6 +239,14 @@
       <pubDate>Thu, 06 Aug 2026 05:37:29 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-06.mp3" length="15467904" type="audio/mpeg"/>
       <guid isPermaLink="false">1e26800406fe9d4b3a75fe47cef94452</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Friday, August 07</title>
+      <pubDate>Fri, 07 Aug 2026 05:37:39 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-07.mp3" length="15847680" type="audio/mpeg"/>
+      <guid isPermaLink="false">354fbcb7af986e020cabcbbb8fc21164</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
