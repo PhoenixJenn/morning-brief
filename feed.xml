@@ -249,5 +249,13 @@
       <guid isPermaLink="false">354fbcb7af986e020cabcbbb8fc21164</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, August 11</title>
+      <pubDate>Tue, 11 Aug 2026 05:50:56 +0000</pubDate>
+      <enclosure url="https://PhoenixJenn.github.io/morning-brief/output/brief-2026-08-11.mp3" length="12188928" type="audio/mpeg"/>
+      <guid isPermaLink="false">bb0621ca6594aa30133ba8555c7aef05</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
