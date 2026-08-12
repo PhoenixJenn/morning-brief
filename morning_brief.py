@@ -469,16 +469,24 @@ def purge_old_episodes():
             print(f"  ✓ Removed {removed} old entries from feed.xml")
 
 def upload_to_r2(path: Path) -> str:
-    """Upload an MP3 to Cloudflare R2. Returns the public URL (or GitHub Pages URL as fallback)."""
+    """Upload an MP3 to Cloudflare R2. Returns the public URL.
+
+    Audio is R2-only — push_to_github() never commits mp3s — so there is no
+    working fallback URL. Raise instead of writing a link that will 404.
+    """
     if not R2_PUBLIC_URL:
-        print("  ⚠ R2_PUBLIC_URL not set — skipping R2 upload, using GitHub Pages URL")
-        return f"{GITHUB_PAGES_URL}/output/{path.name}"
+        raise RuntimeError(
+            "R2_PUBLIC_URL not set — cannot publish audio (GitHub Pages does not host mp3s)"
+        )
 
     access_key = os.environ.get("R2_ACCESS_KEY_ID")
     secret_key = os.environ.get("R2_SECRET_ACCESS_KEY")
     if not access_key or not secret_key:
-        print("  ⚠ R2 credentials not in environment — skipping upload, using GitHub Pages URL")
-        return f"{GITHUB_PAGES_URL}/output/{path.name}"
+        raise RuntimeError(
+            "R2 credentials not in environment — cannot publish audio. "
+            "If running manually outside cron, export R2_ACCESS_KEY_ID and "
+            "R2_SECRET_ACCESS_KEY first (see crontab for values)."
+        )
 
     s3 = boto3.client(
         "s3",
@@ -495,10 +503,14 @@ def upload_to_r2(path: Path) -> str:
 
 # ─── Podcast RSS Feed ─────────────────────────────────────────────────────────
 
-def update_podcast_feed(audio_path: Path, title: str, audio_url: str = None):
+def update_podcast_feed(audio_path: Path, title: str, audio_url: str):
+    if not audio_url:
+        raise RuntimeError(
+            f"update_podcast_feed called without an audio_url for {audio_path.name} — "
+            "GitHub Pages does not host mp3s, so there is no safe fallback."
+        )
     pub_date  = datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0000")
     file_size = audio_path.stat().st_size
-    audio_url = audio_url or f"{GITHUB_PAGES_URL}/output/{audio_path.name}"
     guid      = hashlib.md5(title.encode()).hexdigest()
 
     new_item = f"""
@@ -1099,7 +1111,8 @@ def main():
             produce_episode(briefing, f"brief-{today}", title)
         except Exception as e:
             log_error("produce_episode", e, today)
-            print("  ⚠ Audio generation failed — email digest was already sent; continuing to GitHub push")
+            print(f"  ✗ Episode NOT published — {e}")
+            print("  ⚠ Email digest was already sent; continuing to GitHub push without this episode")
 
     # ── Special brief ──
     if event_articles and active_events:
@@ -1132,7 +1145,8 @@ def main():
             produce_episode(special, f"special-{today}-{slug}", special_title)
         except Exception as e:
             log_error("produce_episode (special)", e, today)
-            print("  ⚠ Special Brief audio failed — continuing to GitHub push")
+            print(f"  ✗ Special Brief episode NOT published — {e}")
+            print("  ⚠ Continuing to GitHub push without this episode")
 
     print("\n📻  Feed updated")
     save_seen_titles(seen_titles | new_titles)
