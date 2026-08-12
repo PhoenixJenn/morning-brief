@@ -54,6 +54,82 @@ def slugify(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
 
 
+# ─── Theme parsing ────────────────────────────────────────────────────────────
+
+def infer_theme_category(name: str, body: str) -> str:
+    text = (name + " " + body).lower()
+    cats = []
+    if any(w in text for w in ["ai", "llm", "model", "openai", "anthropic", "spending", "capex", "coding", "agent", "infrastructure", "publishing", "backlash", "layoff", "productivity"]):
+        cats.append("ai")
+    if any(w in text for w in ["xr", "glasses", "spatial", "ar ", " ar\n", "vr ", "headset", "optics", "wearable", "smart glasses"]):
+        cats.append("xr")
+    if any(w in text for w in ["robot", "humanoid", "autonomous", "av ", "waymo", "self-driving"]):
+        cats.append("robotics")
+    if any(w in text for w in ["3d print", "manufactur", "maker", "filament", "bambu", "prusa"]):
+        cats.append("3d")
+    if any(w in text for w in ["media", "publish", "content", "studio", "youtube", "streaming"]):
+        cats.append("media")
+    return " ".join(cats) if cats else "ai"
+
+
+def parse_themes() -> list[dict]:
+    if not WATCHLIST_MD.exists():
+        return []
+    text = WATCHLIST_MD.read_text()
+    m = re.search(r"## Recurring Themes\n(.*)", text, re.DOTALL)
+    if not m:
+        return []
+
+    themes = []
+    for block in re.split(r"\n(?=### )", m.group(1).strip()):
+        block = block.strip()
+        if not block.startswith("### "):
+            continue
+        lines  = block.split("\n")
+        name   = lines[0][4:].strip()
+        meta   = lines[1] if len(lines) > 1 else ""
+        body   = "\n".join(lines[2:]).strip() if len(lines) > 2 else ""
+
+        appearances = ""
+        m2 = re.search(r"\*\*Appearances:\*\*\s*([^\s|]+\s*(?:briefs)?)", meta)
+        if m2:
+            appearances = m2.group(1).strip()
+
+        themes.append({"name": name, "appearances": appearances, "body": body})
+    return themes
+
+
+def build_theme_card(theme: dict) -> str:
+    name     = esc(theme["name"])
+    category = infer_theme_category(theme["name"], theme.get("body", ""))
+    meta_html = (
+        f'<span style="font-size:0.72rem;color:var(--text-muted,#888);white-space:nowrap;">'
+        f'{esc(theme["appearances"])}</span>'
+        if theme.get("appearances") else ""
+    )
+
+    # Split body on blank lines → separate <p> tags
+    paras = [p.strip().replace("\n", " ") for p in re.split(r"\n{2,}", theme.get("body", "")) if p.strip()]
+    if not paras:
+        paras = [""]
+    para_html = "\n".join(
+        f'          <p style="font-size:0.875rem;color:var(--text-muted,#aaa);line-height:1.65;'
+        f'margin:{"0" if i == len(paras)-1 else "0 0 0.65rem"};">{esc(p)}</p>'
+        for i, p in enumerate(paras)
+    )
+
+    return (
+        f'        <div class="intel-card" data-category="{category}" '
+        f'style="border:1px solid var(--border,#222);border-radius:8px;padding:1.25rem 1.5rem;">\n'
+        f'          <div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:0.5rem;">\n'
+        f'            <span style="font-size:1rem;font-weight:700;color:var(--text-primary,#fff);">{name}</span>\n'
+        f'            {meta_html}\n'
+        f'          </div>\n'
+        f'{para_html}\n'
+        f'        </div>'
+    )
+
+
 def infer_entity_type(category: str) -> str:
     cat = category.lower()
     for kw in PERSON_CATEGORY_KEYWORDS:
@@ -210,15 +286,21 @@ def generate(verbose: bool = True) -> bool:
     company_rows = "\n".join(build_company_row(e, m) for e, m in companies)
     people_rows  = "\n".join(build_person_row(e, m)  for e, m in people)
 
+    themes     = parse_themes()
+    theme_rows = "\n".join(build_theme_card(t) for t in themes)
+
     if not INTEL_HTML.exists():
         if verbose:
             print(f"  [intel] {INTEL_HTML} not found — skipping")
         return False
 
     html = INTEL_HTML.read_text()
+    INTEL_HTML.with_suffix(".html.bak").write_text(html)  # backup before every write
+
     try:
         html = splice(html, "COMPANIES-ROWS", company_rows)
         html = splice(html, "PEOPLE-ROWS",    people_rows)
+        html = splice(html, "THEMES",         theme_rows)
     except ValueError as err:
         if verbose:
             print(f"  [intel] {err}")
@@ -227,7 +309,7 @@ def generate(verbose: bool = True) -> bool:
     INTEL_HTML.write_text(html)
 
     if verbose:
-        print(f"  [intel] Regenerated: {len(companies)} companies, {len(people)} people")
+        print(f"  [intel] Regenerated: {len(companies)} companies, {len(people)} people, {len(themes)} themes")
 
     return True
 

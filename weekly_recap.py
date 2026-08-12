@@ -28,8 +28,11 @@ EMAIL_SENDER    = "ClaudeCode9000@gmail.com"
 EMAIL_RECIPIENT = "phoenixjenn@gmail.com"
 AYX_DIR         = PROJECT_DIR.parent / "augmentyourexperience-www"
 AYX_BRIEFS_DIR  = AYX_DIR / "weekly-briefs"
-MODELS_SRC      = PROJECT_DIR.parent / "claude_projects" / "context" / "frontier-models.json"
+CONTEXT_DIR     = PROJECT_DIR.parent / "claude_projects" / "context"
+MODELS_SRC      = CONTEXT_DIR / "frontier-models.json"
 MODELS_DEST     = AYX_DIR / "data" / "frontier-models.json"
+WATCHLIST_FILE  = CONTEXT_DIR / "watchlist.md"
+SUGGESTIONS_FILE = CONTEXT_DIR / "theme-suggestions.json"
 
 
 # ─── Error Logging & Alerting ─────────────────────────────────────────────────
@@ -431,6 +434,125 @@ def publish_to_ayx(email_html: str, week_label: str, week_slug: str, monday: dat
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
+def load_current_themes() -> str:
+    """Extract the Recurring Themes section from watchlist.md as plain text."""
+    if not WATCHLIST_FILE.exists():
+        return ""
+    text = WATCHLIST_FILE.read_text()
+    m = re.search(r"## Recurring Themes\n(.+)", text, re.DOTALL)
+    return m.group(1).strip() if m else ""
+
+
+def curate_themes(transcripts: list[dict], week_label: str, week_slug: str) -> None:
+    """Call Claude Sonnet to surface emerging themes from the week's briefs.
+
+    Writes structured suggestions to context/theme-suggestions.json.
+    The intel page reads this file and surfaces Accept/Dismiss actions in the
+    Recurring Themes tab.
+    """
+    current_themes = load_current_themes()
+    if not current_themes:
+        print("  [themes] No current themes found — skipping curation")
+        return
+
+    combined = "\n\n".join(
+        f"[{t['date']}]\n{t['text'][:4000]}" for t in transcripts
+    )
+
+    prompt = f"""You are analyzing a week of tech news briefings to surface recurring themes for a personal intelligence tracker.
+
+CURRENT TRACKED THEMES:
+{current_themes}
+
+THIS WEEK'S BRIEFS ({week_label}):
+{combined}
+
+Your job: identify themes a human might skim past reading headlines one by one, but that become meaningful when you see the pattern across the full week.
+
+Return a JSON object with this exact structure:
+{{
+  "new_themes": [
+    {{
+      "name": "Concise Theme Name",
+      "body": "2-4 sentence description. Why this pattern matters strategically. What to watch.",
+      "signal": "high|medium|low"
+    }}
+  ],
+  "updates": [
+    {{
+      "theme": "Exact name of existing theme as listed above",
+      "body": "1-2 sentences — what new development this week advances or changes the theme narrative."
+    }}
+  ],
+  "fading": [
+    {{
+      "theme": "Exact name of existing theme",
+      "note": "One sentence — why this theme may be going stale or resolving."
+    }}
+  ]
+}}
+
+Rules:
+- new_themes: only suggest a theme if it appeared in 2+ briefs this week AND is not covered by an existing theme. Be selective — 0-2 new themes is the right range. Skip obvious headlines.
+- updates: only if there's a material new development (not just more of the same).
+- fading: only if a theme was clearly event-driven and the event has passed.
+- Return only the JSON object, no markdown fences or extra text."""
+
+    client = anthropic.Anthropic()
+    try:
+        print("  Calling Claude for theme curation...")
+        resp = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=2000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = re.sub(r"```(?:json)?\n?", "", resp.content[0].text.strip()).strip("`")
+        suggestions = json.loads(raw)
+    except Exception as exc:
+        print(f"  ⚠ Theme curation failed: {exc}")
+        return
+
+    output = {
+        "week":       week_slug,
+        "week_label": week_label,
+        "generated":  date.today().isoformat(),
+        "suggestions": [],
+    }
+
+    for i, item in enumerate(suggestions.get("new_themes", [])):
+        output["suggestions"].append({
+            "id":     f"new-{i}-{re.sub(r'[^a-z0-9]+', '-', item.get('name','').lower())[:30]}",
+            "type":   "new",
+            "name":   item.get("name", ""),
+            "body":   item.get("body", ""),
+            "signal": item.get("signal", "medium"),
+        })
+
+    for i, item in enumerate(suggestions.get("updates", [])):
+        output["suggestions"].append({
+            "id":    f"update-{i}-{re.sub(r'[^a-z0-9]+', '-', item.get('theme','').lower())[:30]}",
+            "type":  "update",
+            "theme": item.get("theme", ""),
+            "body":  item.get("body", ""),
+        })
+
+    for i, item in enumerate(suggestions.get("fading", [])):
+        output["suggestions"].append({
+            "id":    f"fade-{i}-{re.sub(r'[^a-z0-9]+', '-', item.get('theme','').lower())[:30]}",
+            "type":  "fade",
+            "theme": item.get("theme", ""),
+            "note":  item.get("note", ""),
+        })
+
+    SUGGESTIONS_FILE.write_text(json.dumps(output, indent=2, ensure_ascii=False))
+
+    total = len(output["suggestions"])
+    new   = sum(1 for s in output["suggestions"] if s["type"] == "new")
+    upd   = sum(1 for s in output["suggestions"] if s["type"] == "update")
+    fade  = sum(1 for s in output["suggestions"] if s["type"] == "fade")
+    print(f"  ✓ Theme suggestions: {new} new, {upd} updates, {fade} fading → {SUGGESTIONS_FILE.name}")
+
+
 def main():
     today = date.today()
 
@@ -486,6 +608,13 @@ def main():
     except Exception as e:
         log_error("send_email (weekly)", e)
         print("  ⚠ Email send failed — continuing")
+
+    print("\n🔭  Curating theme suggestions...")
+    try:
+        curate_themes(transcripts, week_label, week_slug)
+    except Exception as e:
+        log_error("curate_themes", e)
+        print("  ⚠ Theme curation failed — continuing")
 
     print("\n🌐  Publishing to Augment Your Experience...")
     try:

@@ -309,7 +309,9 @@ TOPIC SECTIONS (cover each — weight toward AI and XR which are her core focus)
 
 EDITORIAL RULES:
 - Skip rumors with no substance, listicles, and "X does something minor" non-stories
-- If a section had no meaningful news today, say so in one sentence and move on
+- If a section had no meaningful news today, say exactly "No news for [category]." and move on immediately
+- NEVER say "no new news for category" or list the companies/entities that had no news — that wastes airtime
+- NEVER say things like "no news from Scaniverse" or "nothing from xTool today" — just say "No news for [category]." and move on
 - Prioritize stories with real implications over press releases
 
 {watch_context}TODAY'S ARTICLES:
