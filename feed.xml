@@ -125,13 +125,7 @@
   
     
   
-    <item>
-      <title>Morning Brief — Thursday, July 30</title>
-      <pubDate>Thu, 30 Jul 2026 05:38:22 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-07-30.mp3" length="16508928" type="audio/mpeg"/>
-      <guid isPermaLink="false">f3680c40cc597489e7d33d96ab2a7236</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Friday, July 31</title>
@@ -194,6 +188,14 @@
       <pubDate>Wed, 12 Aug 2026 05:38:13 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-12.mp3" length="17262336" type="audio/mpeg"/>
       <guid isPermaLink="false">d70db526ff4074136b0f2cf8bb5d7b19</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Thursday, August 13</title>
+      <pubDate>Thu, 13 Aug 2026 05:37:12 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-13.mp3" length="14510976" type="audio/mpeg"/>
+      <guid isPermaLink="false">9e7cffcab3550c27c0f68f7d546c0a53</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
