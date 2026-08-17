@@ -1,10 +1,8 @@
 {
-  "date": "2026-08-14",
-  "run_at": "2026-08-14 05:37:37",
+  "date": "2026-08-17",
+  "run_at": "2026-08-17 05:38:25",
   "regular_brief": true,
   "special_brief": false,
-  "active_events": [
-    "SIGGRAPH 2026"
-  ],
+  "active_events": [],
   "status": "ok"
 }
