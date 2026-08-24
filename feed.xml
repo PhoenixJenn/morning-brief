@@ -210,5 +210,13 @@
       <guid isPermaLink="false">315baa822d7f99d6455af7afdccd9795</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Monday, August 24</title>
+      <pubDate>Mon, 24 Aug 2026 05:37:16 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-24.mp3" length="15329664" type="audio/mpeg"/>
+      <guid isPermaLink="false">58e272760ffb13c15aedf404323782da</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
