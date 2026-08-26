@@ -1,8 +1,10 @@
 {
-  "date": "2026-08-25",
-  "run_at": "2026-08-25 05:42:25",
+  "date": "2026-08-26",
+  "run_at": "2026-08-26 05:37:46",
   "regular_brief": true,
   "special_brief": false,
-  "active_events": [],
+  "active_events": [
+    "Venice Immersive 2026"
+  ],
   "status": "ok"
 }
