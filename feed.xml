@@ -149,13 +149,7 @@
   
     
   
-    <item>
-      <title>Morning Brief — Tuesday, August 18</title>
-      <pubDate>Tue, 18 Aug 2026 05:36:55 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-18.mp3" length="14208768" type="audio/mpeg"/>
-      <guid isPermaLink="false">609fad9328393d97ed3fd854f80a6f49</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Wednesday, August 19</title>
@@ -226,6 +220,22 @@
       <pubDate>Mon, 31 Aug 2026 06:15:21 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-31.mp3" length="15369600" type="audio/mpeg"/>
       <guid isPermaLink="false">bb8ab36f9c3f4cb28b2fc38926f566dd</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, September 01</title>
+      <pubDate>Tue, 01 Sep 2026 05:37:53 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-09-01.mp3" length="15133440" type="audio/mpeg"/>
+      <guid isPermaLink="false">549806c81f20dfed32dd3815dba5b0b5</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Venice Immersive 2026, Snap Spectacles Consumer Launch</title>
+      <pubDate>Tue, 01 Sep 2026 05:38:19 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-09-01-venice-immersive-2026.mp3" length="1685376" type="audio/mpeg"/>
+      <guid isPermaLink="false">c9e1e1ef41ef6b3055746fd4e379c3f3</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
