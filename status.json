@@ -1,8 +1,8 @@
 {
-  "date": "2026-09-01",
-  "run_at": "2026-09-01 05:38:19",
+  "date": "2026-09-02",
+  "run_at": "2026-09-02 05:38:07",
   "regular_brief": true,
-  "special_brief": true,
+  "special_brief": false,
   "active_events": [
     "Venice Immersive 2026",
     "Snap Spectacles Consumer Launch"
