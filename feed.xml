@@ -155,13 +155,7 @@
   
     
   
-    <item>
-      <title>Morning Brief — Friday, August 21</title>
-      <pubDate>Fri, 21 Aug 2026 05:37:21 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-08-21.mp3" length="15922560" type="audio/mpeg"/>
-      <guid isPermaLink="false">315baa822d7f99d6455af7afdccd9795</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Monday, August 24</title>
@@ -248,6 +242,22 @@
       <pubDate>Thu, 03 Sep 2026 05:39:03 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-09-03-venice-immersive-2026.mp3" length="1639680" type="audio/mpeg"/>
       <guid isPermaLink="false">c9e1e1ef41ef6b3055746fd4e379c3f3</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Friday, September 04</title>
+      <pubDate>Fri, 04 Sep 2026 05:37:38 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-09-04.mp3" length="16161792" type="audio/mpeg"/>
+      <guid isPermaLink="false">bcf964d3c012cde02e6ff9fda163dc70</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Venice Immersive 2026</title>
+      <pubDate>Fri, 04 Sep 2026 05:38:00 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-09-04-venice-immersive-2026.mp3" length="1579392" type="audio/mpeg"/>
+      <guid isPermaLink="false">a37bb8b45fcd4dc8984cf16e18033db0</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
