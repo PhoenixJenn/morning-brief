@@ -190,5 +190,13 @@
       <guid isPermaLink="false">d2658f06a8481a6e17c4d0f1ea809789</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, September 22</title>
+      <pubDate>Tue, 22 Sep 2026 05:36:38 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-09-22.mp3" length="12683904" type="audio/mpeg"/>
+      <guid isPermaLink="false">79af72fddb7d2ef80e9ed7da57d7c55f</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
