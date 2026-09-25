@@ -230,5 +230,21 @@
       <guid isPermaLink="false">e9ce309d5c736c0cdcebea6d42450593</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Friday, September 25</title>
+      <pubDate>Fri, 25 Sep 2026 05:36:49 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-09-25.mp3" length="11748480" type="audio/mpeg"/>
+      <guid isPermaLink="false">a5e8b121923d18ae7b04e445a220306a</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Meta Connect 2026</title>
+      <pubDate>Fri, 25 Sep 2026 05:37:15 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-09-25-meta-connect-2026.mp3" length="1868160" type="audio/mpeg"/>
+      <guid isPermaLink="false">e9ce309d5c736c0cdcebea6d42450593</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
