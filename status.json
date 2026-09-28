@@ -1,10 +1,8 @@
 {
-  "date": "2026-09-25",
-  "run_at": "2026-09-25 05:37:15",
+  "date": "2026-09-28",
+  "run_at": "2026-09-28 05:36:35",
   "regular_brief": true,
-  "special_brief": true,
-  "active_events": [
-    "Meta Connect 2026"
-  ],
+  "special_brief": false,
+  "active_events": [],
   "status": "ok"
 }
