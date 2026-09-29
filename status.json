@@ -1,8 +1,11 @@
 {
-  "date": "2026-09-28",
-  "run_at": "2026-09-28 05:36:35",
+  "date": "2026-09-29",
+  "run_at": "2026-09-29 05:46:50",
   "regular_brief": true,
   "special_brief": false,
   "active_events": [],
-  "status": "ok"
+  "status": "error",
+  "error_step": "purge_old_episodes",
+  "error": "Could not connect to the endpoint URL: \"https://00b8f5d4c66b807a2396f13949ddc8ff.r2.cloudflarestorage.com/morning-brief?list-type=2&prefix=output%2F&encoding-type=url\"",
+  "error_at": "2026-09-29 05:46:59"
 }
