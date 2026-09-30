@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Deep Dive</title>
+    <description>Technical daily briefing on AI research and world models — for practitioners who want the research, not just the news.</description>
+    <language>en-us</language>
+    <link>https://PhoenixJenn.github.io/morning-brief/deep-dive-feed.xml</link>
+    <itunes:image href="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/deepdive.jpg"/>
+    <itunes:category text="Technology"/>
+    <itunes:explicit>false</itunes:explicit>
+    
+    <item>
+      <title>Deep Dive — Wednesday, September 30</title>
+      <pubDate>Wed, 30 Sep 2026 06:32:22 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/deepdive-2026-09-30.mp3" length="6389376" type="audio/mpeg"/>
+      <guid isPermaLink="false">1329d70bab27e2b2c54b7c3497eb19c2</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  </channel>
+</rss>

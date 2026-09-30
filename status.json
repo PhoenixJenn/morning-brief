@@ -4,5 +4,7 @@
   "regular_brief": true,
   "special_brief": false,
   "active_events": [],
-  "status": "ok"
+  "status": "ok",
+  "deep_dive": true,
+  "deep_dive_run_at": "2026-09-30 06:34:17"
 }
