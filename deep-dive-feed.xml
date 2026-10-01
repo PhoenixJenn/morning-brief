@@ -18,5 +18,13 @@
       <guid isPermaLink="false">1329d70bab27e2b2c54b7c3497eb19c2</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Deep Dive Catch-Up: Jev & System 1 Models</title>
+      <pubDate>Wed, 30 Sep 2026 18:48:47 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/deepdive-catchup-2026-09-30.mp3" length="2717952" type="audio/mpeg"/>
+      <guid isPermaLink="false">4879c5bc00c0c955e3fbcc3954a1fcdf</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
