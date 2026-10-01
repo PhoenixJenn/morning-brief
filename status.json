@@ -1,10 +1,9 @@
 {
-  "date": "2026-09-30",
-  "run_at": "2026-09-30 05:37:05",
+  "date": "2026-10-01",
+  "run_at": "2026-10-01 05:40:31",
   "regular_brief": true,
   "special_brief": false,
   "active_events": [],
-  "status": "ok",
   "deep_dive": true,
-  "deep_dive_run_at": "2026-09-30 06:34:17"
+  "status": "ok"
 }
