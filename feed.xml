@@ -270,5 +270,13 @@
       <guid isPermaLink="false">c000e62f86f16b40586ad1d42dc95a92</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Friday, October 02</title>
+      <pubDate>Fri, 02 Oct 2026 05:38:13 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-02.mp3" length="17130240" type="audio/mpeg"/>
+      <guid isPermaLink="false">194257f51187aba0a75fb67fd0407067</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
