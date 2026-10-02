@@ -4,6 +4,8 @@ output/*.html
 output/*-actions.md
 output/seen-titles.json
 output/*.mp3
+output/*.log
+logs/
 __pycache__/
 *.pyc
 .DS_Store

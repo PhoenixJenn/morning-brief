@@ -46,7 +46,31 @@ def find_model(data: dict, model_id: str) -> dict | None:
     return None
 
 
-def sync_and_push(data: dict, commit_msg: str):
+def sync_and_push(data: dict, commit_msg: str, force: bool = False):
+    # Guard against reverting an AYX-side update this script doesn't know about.
+    # The weekly Saturday cron job (run_frontier_models_refresh.sh) edits
+    # DEST_FILE directly and never touches SRC_FILE, so the two can diverge in
+    # content even when both claim the same last_updated date -- this bit us
+    # 2026-09-27 when weekly_recap.py pushed a stale SRC_FILE over a same-day,
+    # much richer AYX refresh. Compare model counts + ids as a cheap divergence
+    # signal; on mismatch, stop rather than silently overwrite.
+    if DEST_FILE.exists() and not force:
+        try:
+            dest_data  = json.loads(DEST_FILE.read_text())
+            dest_ids   = {m.get("id") for m in dest_data.get("models", [])}
+            src_ids    = {m.get("id") for m in data.get("models", [])}
+            only_in_dest = dest_ids - src_ids
+            if only_in_dest:
+                print(f"  ✗ Refusing to sync: AYX's copy has {len(only_in_dest)} model(s) not present in "
+                      f"context/'s copy ({', '.join(sorted(only_in_dest)[:5])}{'...' if len(only_in_dest) > 5 else ''}) "
+                      f"-- it's likely been updated independently (e.g. by the weekly refresh cron) since "
+                      f"context/ was last touched. Pull AYX's version into context/ first "
+                      f"(git -C {AYX_DIR} pull, then copy data/frontier-models.json over SRC_FILE), reapply "
+                      f"your edit, and re-run. Use --force to override.")
+                sys.exit(1)
+        except (json.JSONDecodeError, KeyError):
+            pass
+
     today = datetime.now().strftime("%Y-%m-%d")
     data["meta"]["last_updated"] = today
     save(data)
@@ -108,6 +132,7 @@ def main():
     parser.add_argument("--mark-stale",  metavar="MODEL_ID", help="Flag model needs_update=true")
     parser.add_argument("--clear-stale", metavar="MODEL_ID", help="Clear needs_update flag")
     parser.add_argument("--no-push",     action="store_true", help="Skip git push")
+    parser.add_argument("--force",       action="store_true", help="Skip the AYX-divergence safety check")
 
     args = parser.parse_args()
     data = load()
@@ -161,7 +186,7 @@ def main():
         return
 
     print(f"\n  Syncing frontier-models.json → AYX…")
-    sync_and_push(data, commit_msg)
+    sync_and_push(data, commit_msg, force=args.force)
     print(f"\n  Done.\n")
 
 

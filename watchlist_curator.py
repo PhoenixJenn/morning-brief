@@ -84,12 +84,20 @@ def parse_entities_from_actions(actions_path: Path) -> list[dict]:
         raw = item.group(1).strip()
         if raw.lower().startswith('none'):
             continue
+
+        # Pull off a trailing [source: URL] citation before parsing name/context
+        source_url = None
+        src_match = re.search(r'\[source:\s*(\S+)\]\s*$', raw)
+        if src_match:
+            source_url = src_match.group(1)
+            raw = raw[:src_match.start()].rstrip()
+
         # Split on first ( or — to get clean name regardless of truncation
         name    = re.split(r'[\(—]', raw)[0].strip().rstrip(',').rstrip('/')
         context = re.sub(r'^[^(—]+[\(—]?\s*', '', raw).strip().strip(')')
         if not name:
             name = raw[:40].strip()
-        entities.append({"name": name, "raw_context": context or raw})
+        entities.append({"name": name, "raw_context": context or raw, "source_url": source_url})
 
     return entities
 
@@ -140,6 +148,7 @@ Return only the JSON array, no markdown or extra text."""
             "category":    e.get("category", "AI"),
             "signal":      e.get("signal", "medium"),
             "why":         e.get("why") or entity["raw_context"],
+            "source_url":  entity.get("source_url"),
         })
     return result
 
@@ -170,9 +179,10 @@ def update_tracker(tracker: dict, entities: list[dict], date_str: str) -> dict:
         e["count"]    += 1
         e["category"]  = entity.get("category") or e["category"]
         e["mentions"].append({
-            "date":    date_str,
-            "context": entity.get("why") or entity.get("raw_context", ""),
-            "signal":  entity.get("signal", "medium"),
+            "date":       date_str,
+            "context":    entity.get("why") or entity.get("raw_context", ""),
+            "signal":     entity.get("signal", "medium"),
+            "source_url": entity.get("source_url"),
         })
         e["mentions"] = e["mentions"][-60:]  # rolling 2-month window
 
@@ -234,6 +244,8 @@ def promote_candidates(tracker: dict, watchlist_names: set, date_str: str) -> li
     for e in candidates:
         latest  = e["mentions"][-1] if e["mentions"] else {}
         note    = latest.get("context", "")
+        if latest.get("source_url"):
+            note += f" ([source]({latest['source_url']}))"
         new_row = (
             f"| {e['name']} | {e['category']} | {e['first_seen']} "
             f"| {date_str} | {e['count']} | {note} |"
@@ -305,9 +317,10 @@ def sync_user_signals(date_str: str = None, verbose: bool = True) -> list[str]:
             e["count"]     = weight
             e["last_seen"] = date_str
             e["mentions"].append({
-                "date":    date_str,
-                "context": f"User-flagged {item['priority'].upper()}: {raw[:120]}",
-                "signal":  signal,
+                "date":       date_str,
+                "context":    f"User-flagged {item['priority'].upper()}: {raw[:120]}",
+                "signal":     signal,
+                "source_url": None,
             })
             e["mentions"] = e["mentions"][-60:]
             touched.append(name)

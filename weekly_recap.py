@@ -380,21 +380,29 @@ def clear_new_event_flags() -> bool:
     return changed
 
 
-def sync_frontier_models() -> bool:
-    """Copy frontier-models.json to AYX data dir. Returns True if file was updated."""
-    if not MODELS_SRC.exists():
-        print(f"  ⚠ frontier-models.json not found at {MODELS_SRC} — skipping")
-        return False
-    MODELS_DEST.parent.mkdir(exist_ok=True)
-    src_text  = MODELS_SRC.read_text()
-    dest_text = MODELS_DEST.read_text() if MODELS_DEST.exists() else ""
-    if src_text == dest_text:
-        print("  ✓ frontier-models.json unchanged — no sync needed")
-        return False
-    shutil.copy2(MODELS_SRC, MODELS_DEST)
-    src_meta = json.loads(src_text).get("meta", {})
-    print(f"  ✓ frontier-models.json synced (last_updated: {src_meta.get('last_updated', '?')})")
-    return True
+def sync_frontier_models_backup() -> None:
+    """Mirror AYX's frontier-models.json back into context/ as a local backup copy.
+
+    Deliberately AYX -> context, not the reverse. The weekly frontier-models
+    refresh (Saturday cron, run_frontier_models_refresh.sh) edits the AYX repo's
+    copy directly and never touches context/frontier-models.json. Syncing
+    context -> AYX here (the old direction) meant this job silently reverted
+    that week's refresh with stale local data every Sunday — caught 2026-09-27
+    when the live Models page showed every entry dated 2026-08-09. This
+    direction only ever updates the local context/ mirror, never AYX, so it
+    can't clobber anything live.
+    """
+    if not MODELS_DEST.exists():
+        print(f"  ⚠ frontier-models.json not found at {MODELS_DEST} — skipping backup sync")
+        return
+    dest_text = MODELS_DEST.read_text()
+    src_text  = MODELS_SRC.read_text() if MODELS_SRC.exists() else ""
+    if dest_text == src_text:
+        print("  ✓ frontier-models.json backup already up to date")
+        return
+    shutil.copy2(MODELS_DEST, MODELS_SRC)
+    dest_meta = json.loads(dest_text).get("meta", {})
+    print(f"  ✓ frontier-models.json backed up to context/ (last_updated: {dest_meta.get('last_updated', '?')})")
 
 
 def publish_to_ayx(email_html: str, week_label: str, week_slug: str, monday: date, week_end: date):
@@ -422,8 +430,7 @@ def publish_to_ayx(email_html: str, week_label: str, week_slug: str, monday: dat
         subprocess.run(["git", "-C", str(AYX_DIR), "add", "weekly-briefs/"], check=True)
         clear_new_event_flags()
         subprocess.run(["git", "-C", str(AYX_DIR), "add", "data/events.json"], check=True)
-        if sync_frontier_models():
-            subprocess.run(["git", "-C", str(AYX_DIR), "add", "data/frontier-models.json"], check=True)
+        sync_frontier_models_backup()  # context/ only -- never touches AYX's copy, see docstring
         check_staged_images()
         subprocess.run(["git", "-C", str(AYX_DIR), "commit", "-m",
                         f"Weekly Brief {week_slug} — {week_label}"], check=True)
@@ -512,45 +519,116 @@ Rules:
         print(f"  ⚠ Theme curation failed: {exc}")
         return
 
-    output = {
-        "week":       week_slug,
-        "week_label": week_label,
-        "generated":  date.today().isoformat(),
-        "suggestions": [],
-    }
+    new_suggestions = []
 
     for i, item in enumerate(suggestions.get("new_themes", [])):
-        output["suggestions"].append({
+        new_suggestions.append({
             "id":     f"new-{i}-{re.sub(r'[^a-z0-9]+', '-', item.get('name','').lower())[:30]}",
             "type":   "new",
             "name":   item.get("name", ""),
             "body":   item.get("body", ""),
             "signal": item.get("signal", "medium"),
+            "week":   week_slug,
         })
 
     for i, item in enumerate(suggestions.get("updates", [])):
-        output["suggestions"].append({
+        new_suggestions.append({
             "id":    f"update-{i}-{re.sub(r'[^a-z0-9]+', '-', item.get('theme','').lower())[:30]}",
             "type":  "update",
             "theme": item.get("theme", ""),
             "body":  item.get("body", ""),
+            "week":  week_slug,
         })
 
     for i, item in enumerate(suggestions.get("fading", [])):
-        output["suggestions"].append({
+        new_suggestions.append({
             "id":    f"fade-{i}-{re.sub(r'[^a-z0-9]+', '-', item.get('theme','').lower())[:30]}",
             "type":  "fade",
             "theme": item.get("theme", ""),
             "note":  item.get("note", ""),
+            "week":  week_slug,
         })
 
+    # Jenn doesn't review this queue, so apply everything automatically instead of
+    # parking it for manual accept/dismiss. Anything already sitting unapplied from a
+    # prior week (e.g. a previous failure) gets a retry here too. Only genuine failures
+    # (theme name not found — an LLM naming mismatch) stay in the file afterward, as a
+    # small safety net rather than a routine review queue.
+    pending = []
+    if SUGGESTIONS_FILE.exists():
+        try:
+            pending = json.loads(SUGGESTIONS_FILE.read_text()).get("suggestions", [])
+        except (json.JSONDecodeError, OSError):
+            pending = []
+
+    def dedupe_key(item):
+        name = item.get("name") or item.get("theme") or ""
+        return (item["type"], name.strip().lower())
+
+    merged = {dedupe_key(item): item for item in pending}
+    for item in new_suggestions:
+        merged[dedupe_key(item)] = item  # this week's take on a theme supersedes any older one
+
+    watchlist_text = WATCHLIST_FILE.read_text() if WATCHLIST_FILE.exists() else ""
+    WATCHLIST_FILE.with_suffix(".md.bak").write_text(watchlist_text)
+    today = date.today().isoformat()
+
+    applied, failed = [], []
+    for item in merged.values():
+        if item["type"] == "new":
+            watchlist_text = (
+                watchlist_text.rstrip() + "\n"
+                f"\n### {item['name']}\n**First seen:** {today} | **Appearances:** 1\n{item['body']}\n"
+            )
+            applied.append(item)
+            continue
+
+        header = f"### {item['theme']}\n"
+        header_idx = watchlist_text.find(header)
+        if header_idx == -1:
+            failed.append(item)
+            continue
+
+        if item["type"] == "update":
+            after_header = header_idx + len(header)
+            meta_end = watchlist_text.find("\n", after_header)
+            if meta_end == -1:
+                meta_end = len(watchlist_text)
+            insert_pos = meta_end + 1
+            watchlist_text = (
+                watchlist_text[:insert_pos] + f"{today}: {item['body']}\n" + watchlist_text[insert_pos:]
+            )
+            applied.append(item)
+
+        elif item["type"] == "fade":
+            next_idx = watchlist_text.find("\n### ", header_idx + len(header))
+            section_end = next_idx + 1 if next_idx != -1 else len(watchlist_text)
+            watchlist_text = watchlist_text[:header_idx] + watchlist_text[section_end:]
+            applied.append(item)
+
+    WATCHLIST_FILE.write_text(watchlist_text)
+
+    if applied:
+        try:
+            import generate_intel
+            generate_intel.generate(verbose=True)
+        except Exception as exc:
+            print(f"  ⚠ generate_intel failed after applying theme suggestions: {exc}")
+
+    output = {
+        "week":       week_slug,
+        "week_label": week_label,
+        "generated":  today,
+        "suggestions": failed,  # only unresolved failures persist — not a review queue
+    }
     SUGGESTIONS_FILE.write_text(json.dumps(output, indent=2, ensure_ascii=False))
 
-    total = len(output["suggestions"])
-    new   = sum(1 for s in output["suggestions"] if s["type"] == "new")
-    upd   = sum(1 for s in output["suggestions"] if s["type"] == "update")
-    fade  = sum(1 for s in output["suggestions"] if s["type"] == "fade")
-    print(f"  ✓ Theme suggestions: {new} new, {upd} updates, {fade} fading → {SUGGESTIONS_FILE.name}")
+    new   = sum(1 for s in applied if s["type"] == "new")
+    upd   = sum(1 for s in applied if s["type"] == "update")
+    fade  = sum(1 for s in applied if s["type"] == "fade")
+    print(f"  ✓ Theme suggestions auto-applied to watchlist.md: {new} new, {upd} updates, {fade} fading")
+    if failed:
+        print(f"  ⚠ {len(failed)} suggestion(s) failed to apply (theme name not found) — left in {SUGGESTIONS_FILE.name} for manual attention")
 
 
 def main():
