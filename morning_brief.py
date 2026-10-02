@@ -13,6 +13,7 @@ import tempfile
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from xml.sax.saxutils import escape as xml_escape
 
 import boto3
 from botocore.config import Config
@@ -34,6 +35,12 @@ PODCAST_TITLE       = "Morning Brief"
 PODCAST_DESCRIPTION = "AI-curated daily tech briefing — spatial computing, AI, XR, media, and more."
 GITHUB_PAGES_URL    = "https://PhoenixJenn.github.io/morning-brief"
 
+# Deep Dive — separate daily show for AI research & world models (technical audience)
+DEEP_DIVE_RSS_FILE    = PROJECT_DIR / "deep-dive-feed.xml"
+DEEP_DIVE_TITLE       = "Deep Dive"
+DEEP_DIVE_DESCRIPTION = "Technical daily briefing on AI research and world models — for practitioners who want the research, not just the news."
+DEEP_DIVE_URL         = f"{GITHUB_PAGES_URL}/deep-dive-feed.xml"
+
 # ─── Cloudflare R2 (audio hosting) ───────────────────────────────────────────
 # Credentials come from env vars — add to crontab: R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
 R2_ACCOUNT_ID  = "00b8f5d4c66b807a2396f13949ddc8ff"
@@ -46,11 +53,13 @@ PURGE_DAYS     = 14    # delete R2 episodes and feed entries older than this
 
 TARGET_WORDS  = 7000   # ~48 min at 145 wpm — aim high so we land near 45
 SPLIT_WORDS   = 8500   # split into Part 1 / Part 2 if briefing exceeds this
+RD_TARGET_WORDS = 2000  # ~14 min — Deep Dive is a focused supplementary show, not commute-length
 LOOKBACK_HRS  = 26     # slightly more than 24 to catch late-night posts
 MAX_PER_FEED  = 10     # max articles pulled per feed
 TTS_VOICE     = "nova"    # OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
 TTS_MODEL     = "tts-1"  # tts-1 (~$13/mo daily) or tts-1-hd (higher quality, ~$26/mo)
 TTS_SPEED     = 1.4      # 1.0 = normal, 1.25 = slightly faster, 1.5 = fast
+DEEP_DIVE_VOICE = "onyx"  # deep male voice — distinct from Morning Brief's nova
 OPENAI_CHUNK  = 4000     # OpenAI TTS max chars per request
 
 # ─── RSS Feeds by Topic ───────────────────────────────────────────────────────
@@ -85,6 +94,9 @@ FEEDS = {
         "https://9to5google.com/feed/",
         "https://www.androidauthority.com/feed/",
         "https://spectrum.ieee.org/feeds/feed.rss",
+        # Anthropic has no public RSS feed (checked /rss.xml, /feed, /news, /research —
+        # all 404). Google News search is the working substitute.
+        "https://news.google.com/rss/search?q=Anthropic+when:2d&hl=en-US&gl=US&ceid=US:en",
     ],
     "XR, Spatial Computing & Spatial Internet": [
         "https://www.roadtovr.com/feed/",
@@ -117,6 +129,29 @@ FEEDS = {
         "https://techcrunch.com/category/media-entertainment/feed/",
         "https://www.fiercevideo.com/rss/xml",
         "https://www.theverge.com/entertainment/rss/index.xml",
+    ],
+}
+
+# ─── RSS Feeds for Deep Dive (separate show — AI research & world models) ─────
+# Kept out of FEEDS/generate_briefing on purpose: this is technical, research-level
+# material for practitioners, not general-audience Morning Brief content. Sources
+# are chosen for signal (dedicated research trackers) over volume (general tech
+# press), so a niche story doesn't get crowded out by the day's biggest headline.
+
+RD_FEEDS = {
+    "AI Research & World Models": [
+        "https://deepmind.google/blog/rss.xml",
+        "https://research.google/blog/rss/",
+        "https://bair.berkeley.edu/blog/feed.xml",
+        "https://about.fb.com/news/tag/ai/feed/",
+        "https://www.marktechpost.com/feed/",
+        "https://syncedreview.com/feed/",
+        "https://importai.substack.com/feed",
+        "https://lastweekin.ai/feed",
+        "https://simonwillison.net/atom/everything/",
+        # Keyword search catches world-model news that no single lab's blog would —
+        # e.g. AMD's acquisition of World Labs, JEPA papers, new world-model startups.
+        "https://news.google.com/rss/search?q=%22world+model%22+OR+JEPA+OR+%22foundation+model%22+research+when:2d&hl=en-US&gl=US&ceid=US:en",
     ],
 }
 
@@ -168,12 +203,12 @@ def strip_html(text: str) -> str:
     text = re.sub(r"<[^>]+>", " ", text)
     return " ".join(text.split())
 
-def fetch_articles(seen_titles: set) -> tuple[dict, set]:
+def fetch_articles(feeds: dict, seen_titles: set) -> tuple[dict, set]:
     cutoff = datetime.now(timezone.utc) - timedelta(hours=LOOKBACK_HRS)
     results = {}
     new_titles = set()
 
-    for topic, urls in FEEDS.items():
+    for topic, urls in feeds.items():
         articles = []
         seen_this_run = set()
 
@@ -194,11 +229,13 @@ def fetch_articles(seen_titles: set) -> tuple[dict, set]:
 
                     summary = strip_html(raw)[:600]
                     source  = feed.feed.get("title", url)
+                    link    = entry.get("link", "")
 
                     articles.append({
                         "title":   title,
                         "summary": summary,
                         "source":  source,
+                        "url":     link,
                     })
                     new_titles.add(title)
             except Exception as e:
@@ -301,7 +338,7 @@ STRUCTURE:
 TOPIC SECTIONS (cover each — weight toward AI and XR which are her core focus):
 1. General Tech & Industry — 3-4 top stories
 2. AI & Machine Learning — give this section the most depth; it's central to her work
-3. XR, Spatial Computing, Spatial Internet & World Models — important professionally; cover substantively; include spatial internet, digital twins, world models
+3. XR, Spatial Computing & Spatial Internet — important professionally; cover substantively; include spatial internet, digital twins (deep AI-research/world-model coverage now lives in the separate Deep Dive show — keep this section to XR/spatial products and news)
 4. 3D Capture & Create — include anything on Niantic Scaniverse, Creality, xTool, 3D Gaussian splatting, photogrammetry
 5. Autonomous Vehicles, Robotics & Humanoid Robots — 2-3 stories; humanoid robots (Figure, Tesla Optimus, Boston Dynamics, etc.) are of high interest
 6. IoT & Connected Devices — 2-3 stories; smart home, industrial IoT, connected devices
@@ -313,6 +350,7 @@ EDITORIAL RULES:
 - NEVER say "no new news for category" or list the companies/entities that had no news — that wastes airtime
 - NEVER say things like "no news from Scaniverse" or "nothing from xTool today" — just say "No news for [category]." and move on
 - Prioritize stories with real implications over press releases
+- NEVER open the first story with a templated hook like "Let's start with the story that's going to dominate/define [water cooler / hallway / group chat / board meeting] conversations..." You've used some version of this every single day — it's the first thing a listener would notice as AI-written. Just say what happened, or open with the fact itself, a number, a quote, or a direct claim. Vary the approach daily; do not settle into a new template to replace this one
 
 {watch_context}TODAY'S ARTICLES:
 {article_text}
@@ -367,6 +405,60 @@ Write the full Special Brief now:"""
     )
     return message.content[0].text
 
+# ─── Generate Deep Dive (separate show — AI research & world models) ─────────
+
+NO_DEEP_DIVE_SENTINEL = "No Deep Dive material today"
+
+def generate_deep_dive(articles: dict) -> str:
+    client = anthropic.Anthropic()
+
+    article_text = ""
+    for topic, items in articles.items():
+        article_text += f"\n\n## {topic}\n"
+        for a in items:
+            article_text += f"- **{a['title']}** ({a['source']})\n"
+            if a["summary"]:
+                article_text += f"  {a['summary']}\n"
+
+    today_pretty = datetime.now().strftime("%A, %B %d, %Y")
+
+    prompt = f"""You are writing Deep Dive — a spoken audio briefing on AI research and world models, for technical practitioners: ML engineers, researchers, and AI-savvy friends who want the research-level story, not the consumer-tech headline version.
+
+Write this as natural spoken audio — not an article, not a list. The listener will hear this, not read it.
+
+TONE:
+- Peer-to-peer technical, like one researcher briefing another over coffee
+- Assume deep familiarity with ML concepts — architectures, training methods, benchmarks. Do not define basic terms (transformer, embedding, fine-tuning, etc.)
+- Get to the substance immediately — no throat-clearing
+- Go deep on mechanism: how something works, why it's architecturally different, what tradeoff it makes — not just "X raised $Y" framing
+- Dry technical wit is welcome
+
+STRUCTURE:
+- Open with: "This is Deep Dive for {today_pretty}."
+- Cover the day's AI research and world-model stories — new architectures, papers, world-model releases, research lab announcements, notable startups in this space
+- Write approximately {RD_TARGET_WORDS} words — go deeper on fewer stories rather than shallow coverage of everything
+- Close with: "That's Deep Dive. Back tomorrow."
+
+EDITORIAL RULES:
+- Skip pure funding-round news with no technical substance — this is not a business briefing
+- If there's a genuinely new architecture or technique, explain the actual mechanism, not just the marketing claim
+- If nothing qualifies today, respond with exactly this sentence and nothing else: "{NO_DEEP_DIVE_SENTINEL} — nothing research-significant in the last 24 hours."
+- Prioritize primary research signal (papers, technical blog posts, lab announcements) over secondhand tech-press summaries when both cover the same story
+- NEVER open with a templated hook like "Let's start with the story that's going to dominate..." — just state the fact, a number, or a direct technical claim
+
+TODAY'S ARTICLES:
+{article_text}
+
+Write the full Deep Dive script now:"""
+
+    print("  Calling Claude API for Deep Dive...")
+    message = client.messages.create(
+        model="claude-opus-4-7",
+        max_tokens=8192,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return message.content[0].text
+
 # ─── Split long briefings ─────────────────────────────────────────────────────
 
 def split_briefing(text: str) -> list[str]:
@@ -398,18 +490,18 @@ def split_text(text: str, max_chars: int) -> list[str]:
         chunks.append(current)
     return chunks
 
-def text_to_speech(text: str, base_path: Path) -> Path:
+def text_to_speech(text: str, base_path: Path, voice: str = TTS_VOICE) -> Path:
     client   = OpenAI()
     mp3_path = base_path.with_suffix(".mp3")
     chunks   = split_text(text, OPENAI_CHUNK)
 
-    print(f"  Converting {len(chunks)} chunks via OpenAI TTS ({TTS_VOICE})...")
+    print(f"  Converting {len(chunks)} chunks via OpenAI TTS ({voice})...")
     audio_bytes = b""
     for i, chunk in enumerate(chunks, 1):
         print(f"    Chunk {i}/{len(chunks)}...", end="\r")
         response = client.audio.speech.create(
             model=TTS_MODEL,
-            voice=TTS_VOICE,
+            voice=voice,
             input=chunk,
             response_format="mp3",
             speed=TTS_SPEED,
@@ -454,8 +546,10 @@ def purge_old_episodes():
         print(f"  ✓ Nothing to purge (all episodes within {PURGE_DAYS} days)")
         return
 
-    if RSS_FILE.exists():
-        content = RSS_FILE.read_text()
+    for feed_path in (RSS_FILE, DEEP_DIVE_RSS_FILE):
+        if not feed_path.exists():
+            continue
+        content = feed_path.read_text()
         parts   = re.split(r'(<item>.*?</item>)', content, flags=re.DOTALL)
         removed = 0
         filtered = []
@@ -467,8 +561,8 @@ def purge_old_episodes():
                     continue
             filtered.append(part)
         if removed:
-            RSS_FILE.write_text(''.join(filtered))
-            print(f"  ✓ Removed {removed} old entries from feed.xml")
+            feed_path.write_text(''.join(filtered))
+            print(f"  ✓ Removed {removed} old entries from {feed_path.name}")
 
 def upload_to_r2(path: Path) -> str:
     """Upload an MP3 to Cloudflare R2. Returns the public URL.
@@ -505,7 +599,14 @@ def upload_to_r2(path: Path) -> str:
 
 # ─── Podcast RSS Feed ─────────────────────────────────────────────────────────
 
-def update_podcast_feed(audio_path: Path, title: str, audio_url: str):
+def update_podcast_feed(
+    audio_path: Path, title: str, audio_url: str,
+    feed_path: Path = RSS_FILE,
+    podcast_title: str = PODCAST_TITLE,
+    podcast_description: str = PODCAST_DESCRIPTION,
+    feed_link: str = GITHUB_PAGES_URL,
+    image_key: str = "morningbrief.jpg",
+):
     if not audio_url:
         raise RuntimeError(
             f"update_podcast_feed called without an audio_url for {audio_path.name} — "
@@ -517,15 +618,15 @@ def update_podcast_feed(audio_path: Path, title: str, audio_url: str):
 
     new_item = f"""
     <item>
-      <title>{title}</title>
+      <title>{xml_escape(title)}</title>
       <pubDate>{pub_date}</pubDate>
       <enclosure url="{audio_url}" length="{file_size}" type="audio/mpeg"/>
       <guid isPermaLink="false">{guid}</guid>
       <itunes:duration>2700</itunes:duration>
     </item>"""
 
-    if RSS_FILE.exists():
-        content = RSS_FILE.read_text()
+    if feed_path.exists():
+        content = feed_path.read_text()
         content = content.replace("</channel>", new_item + "\n  </channel>")
     else:
         content = f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -533,19 +634,19 @@ def update_podcast_feed(audio_path: Path, title: str, audio_url: str):
   xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
   xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>{PODCAST_TITLE}</title>
-    <description>{PODCAST_DESCRIPTION}</description>
+    <title>{podcast_title}</title>
+    <description>{podcast_description}</description>
     <language>en-us</language>
-    <link>{GITHUB_PAGES_URL}</link>
-    <itunes:image href="{R2_PUBLIC_URL}/morningbrief.jpg"/>
+    <link>{feed_link}</link>
+    <itunes:image href="{R2_PUBLIC_URL}/{image_key}"/>
     <itunes:category text="Technology"/>
     <itunes:explicit>false</itunes:explicit>
     {new_item}
   </channel>
 </rss>"""
 
-    RSS_FILE.write_text(content)
-    print(f"  ✓ RSS feed updated")
+    feed_path.write_text(content)
+    print(f"  ✓ RSS feed updated ({feed_path.name})")
 
 # ─── Parse Briefing → TLDR + Action Items ────────────────────────────────────
 
@@ -557,7 +658,7 @@ BRIEF_INBOX_PATH    = CLAUDE_PROJECTS_DIR / "context" / "brief-inbox.md"
 AYX_DIR             = PROJECT_DIR.parent / "augmentyourexperience-www"
 AYX_EVENTS_PATH     = EVENTS_FILE  # same file — AYX is the single source of truth
 
-def parse_briefing(briefing: str, today: str, today_pretty: str) -> str:
+def parse_briefing(briefing: str, today: str, today_pretty: str, articles: dict = None) -> str:
     """Extract TLDR and action items — two focused calls with separate token budgets.
 
     Split rationale: a single 2048-token response couldn't reliably fit both TLDR
@@ -596,6 +697,22 @@ BRIEFING:
     )
     tldr_section = tldr_msg.content[0].text.strip()
 
+    # ── Build a numbered source-article index for citation (title -> URL) ──────
+    source_index = ""
+    if articles:
+        numbered = []
+        n = 0
+        for items in articles.values():
+            for a in items:
+                if a.get("url"):
+                    n += 1
+                    numbered.append(f"[{n}] {a['title']} — {a['url']}")
+        if numbered:
+            source_index = (
+                "\n\nSOURCE ARTICLES (for citation only — never read these aloud or copy "
+                "into any other section):\n" + "\n".join(numbered)
+            )
+
     # ── Call 2: Action items (2500 tokens for six full categories) ─────────────
     actions_msg = client.messages.create(
         model="claude-opus-4-7",
@@ -624,8 +741,13 @@ Angles worth writing about on a spatial computing / emerging tech blog.
 - item
 
 ### People & Companies to Watch
-Names worth adding to a watchlist. Include a 1-line reason in parentheses.
+Names worth adding to a watchlist. Include a 1-line reason in parentheses. If this item clearly
+traces back to exactly one of the numbered SOURCE ARTICLES below, append its URL in the format
+` [source: URL]` right after the reason. Only do this when a single article is a clear, confident
+match — if the item synthesizes multiple stories or is general commentary, omit the citation
+entirely rather than guessing. Never fabricate a URL that isn't in the source list.
 - Name (reason)
+- Name (reason) [source: https://...]
 
 ### Other
 Anything actionable that doesn't fit above.
@@ -636,7 +758,7 @@ Use these exact headers. If a category has nothing actionable, write "None today
 ---
 
 BRIEFING:
-{briefing}""",
+{briefing}{source_index}""",
         }],
     )
     actions_section = actions_msg.content[0].text.strip()
@@ -922,6 +1044,61 @@ Return SUBJECT line first, then BODY with full HTML."""
         subject = f"Morning Brief — {today_pretty}"
         html    = raw
 
+    if html.startswith("```"):
+        html = html.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+
+    return subject, html
+
+def generate_deep_dive_email(deep_dive: str, today_pretty: str) -> tuple[str, str]:
+    """Reformat the Deep Dive audio transcript into a scannable HTML email digest."""
+    client = anthropic.Anthropic()
+
+    prompt = f"""You are reformatting a spoken Deep Dive audio briefing (AI research & world models, technical audience) into a clean email newsletter digest.
+
+CRITICAL RULES — these override everything else:
+1. COVER EVERY STORY. Do not drop any story from the transcript.
+2. PRESERVE ALL SPECIFIC FACTS — model names, benchmark numbers, architecture names, dollar amounts — exactly as stated in the transcript.
+3. KEEP THE TECHNICAL DEPTH. This is a technical audience — do not simplify, define basic ML terms, or add beginner framing that wasn't in the transcript.
+4. PRESERVE DIRECT QUOTES when the transcript includes them.
+5. Do not pad — but do not compress at the cost of substance.
+
+OUTPUT FORMAT — return exactly this structure:
+
+SUBJECT: [one-line subject, e.g. "Deep Dive — Monday, May 18"]
+
+BODY:
+[Clean HTML email body. Use inline styles only. Design guidelines:
+- Max width 620px, centered, font-family: -apple-system, Arial, sans-serif, color: #1a1a1a
+- Header: large bold title "DEEP DIVE" + date in smaller gray text below + one line in small gray text: "AI Research & World Models"
+- Stories as <p> tags: <strong>Model/Lab/Paper name</strong> — full technical summary preserving specific facts and the transcript's own mechanism/architecture explanation
+- If the transcript has connective/analytical observations tying stories together, keep them in a closing section
+- Footer: small gray text "Deep Dive · AI-curated · {today_pretty}"]
+
+DEEP DIVE TRANSCRIPT:
+{deep_dive}
+
+Return SUBJECT line first, then BODY with full HTML."""
+
+    print("  Generating Deep Dive email digest...")
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=8192,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    raw = message.content[0].text
+
+    subject = ""
+    html    = ""
+    if "SUBJECT:" in raw and "BODY:" in raw:
+        subject = raw.split("SUBJECT:")[1].split("BODY:")[0].strip()
+        html    = raw.split("BODY:")[1].strip()
+    else:
+        subject = f"Deep Dive — {today_pretty}"
+        html    = raw
+
+    if html.startswith("```"):
+        html = html.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+
     return subject, html
 
 def send_email_digest(subject: str, html_body: str):
@@ -951,8 +1128,11 @@ def send_email_digest(subject: str, html_body: str):
 def push_to_github():
     os.chdir(PROJECT_DIR)
     today = datetime.now().strftime("%Y-%m-%d")
-    # MP3s live on R2 now — only push feed.xml and status.json
-    subprocess.run(["git", "add", "feed.xml", "status.json"], check=True)
+    # MP3s live on R2 now — only push feed files and status.json
+    files_to_add = ["feed.xml", "status.json"]
+    if DEEP_DIVE_RSS_FILE.exists():
+        files_to_add.append(DEEP_DIVE_RSS_FILE.name)
+    subprocess.run(["git", "add", *files_to_add], check=True)
     subprocess.run(["git", "commit", "-m", f"Morning brief {today}"], check=True)
     subprocess.run(["git", "push"], check=True)
     print("  ✓ Published to GitHub Pages")
@@ -976,17 +1156,30 @@ def upload_transcript_to_r2(path: Path):
     s3.upload_file(str(path), R2_BUCKET, key, ExtraArgs={"ContentType": "text/plain"})
     print(f"  ✓ Transcript archived to R2: {key}")
 
-def produce_episode(text: str, base_name: str, title: str):
+def produce_episode(
+    text: str, base_name: str, title: str,
+    feed_path: Path = RSS_FILE,
+    podcast_title: str = PODCAST_TITLE,
+    podcast_description: str = PODCAST_DESCRIPTION,
+    feed_link: str = GITHUB_PAGES_URL,
+    image_key: str = "morningbrief.jpg",
+    voice: str = TTS_VOICE,
+):
     """TTS a briefing (splitting into parts if long), upload to R2, and add to the feed."""
     parts = split_briefing(text) if len(text.split()) > SPLIT_WORDS else [text]
     paths = []
     for i, part in enumerate(parts, 1):
         suffix     = f"-part{i}" if len(parts) > 1 else ""
         part_title = f"{title} (Part {i})" if len(parts) > 1 else title
-        audio      = text_to_speech(part, OUTPUT_DIR / f"{base_name}{suffix}")
+        audio      = text_to_speech(part, OUTPUT_DIR / f"{base_name}{suffix}", voice=voice)
         print("\n☁️   Uploading to R2...")
         audio_url  = upload_to_r2(audio)
-        update_podcast_feed(audio, part_title, audio_url)
+        update_podcast_feed(
+            audio, part_title, audio_url,
+            feed_path=feed_path, podcast_title=podcast_title,
+            podcast_description=podcast_description, feed_link=feed_link,
+            image_key=image_key,
+        )
         paths.append(audio)
     return paths
 
@@ -1015,19 +1208,27 @@ def main():
 
     print("\n📡  Fetching articles...")
     seen_titles = load_seen_titles()
-    all_articles, new_titles = fetch_articles(seen_titles)
+    all_articles, new_titles = fetch_articles(FEEDS, seen_titles)
 
     if not all_articles:
         for attempt in range(1, 6):
             print(f"  No articles found — retrying in 90s (attempt {attempt}/5)...")
             time.sleep(90)
-            all_articles, new_titles = fetch_articles(seen_titles)
+            all_articles, new_titles = fetch_articles(FEEDS, seen_titles)
             if all_articles:
                 break
 
     if not all_articles:
         print("  No articles found after retries. Check your network connection.")
         return
+
+    print("\n📡  Fetching Deep Dive articles (AI research & world models)...")
+    rd_articles, rd_new_titles = fetch_articles(RD_FEEDS, seen_titles | new_titles)
+    if rd_articles:
+        rd_total = sum(len(v) for v in rd_articles.values())
+        print(f"  ✓ {rd_total} Deep Dive articles")
+    else:
+        print("  No Deep Dive articles found today")
 
     # Partition articles on event days
     if active_events:
@@ -1062,7 +1263,7 @@ def main():
 
         print("\n🔍  Parsing briefing for TLDR + action items...")
         try:
-            parsed = parse_briefing(briefing, today, today_pretty)
+            parsed = parse_briefing(briefing, today, today_pretty, regular_articles)
         except Exception as e:
             log_error("parse_briefing", e, today)
             raise
@@ -1082,6 +1283,20 @@ def main():
         except Exception as e:
             log_error("watchlist_curator", e, today)
             print("  ⚠ Watchlist curator failed — continuing")
+
+        try:
+            import category_trends
+            category_trends.run(today)
+        except Exception as e:
+            log_error("category_trends", e, today)
+            print("  ⚠ Category trends recording failed — continuing")
+
+        try:
+            import stock_prices
+            stock_prices.run(today)
+        except Exception as e:
+            log_error("stock_prices", e, today)
+            print("  ⚠ Stock price recording failed — continuing")
 
         print("\n🔀  Auto-triaging inbox items...")
         try:
@@ -1150,8 +1365,59 @@ def main():
             print(f"  ✗ Special Brief episode NOT published — {e}")
             print("  ⚠ Continuing to GitHub push without this episode")
 
+    # ── Deep Dive (separate show — AI research & world models) ──
+    deep_dive_published = False
+    if rd_articles:
+        print("\n🔬  Generating Deep Dive (AI Research & World Models)...")
+        deep_dive = None
+        try:
+            deep_dive = generate_deep_dive(rd_articles)
+        except Exception as e:
+            log_error("generate_deep_dive", e, today)
+            print("  ⚠ Deep Dive generation failed — skipping today's episode")
+
+        if deep_dive and not deep_dive.strip().startswith(NO_DEEP_DIVE_SENTINEL):
+            dd_txt_path = OUTPUT_DIR / f"deepdive-{today}.txt"
+            dd_txt_path.write_text(deep_dive)
+            try:
+                upload_transcript_to_r2(dd_txt_path)
+            except Exception as e:
+                log_error("upload_transcript_to_r2 (deep dive)", e, today)
+                print("  ⚠ R2 upload failed — continuing without cloud backup")
+
+            dd_words = len(deep_dive.split())
+            print(f"  ✓ Deep Dive transcript: {dd_words:,} words (~{dd_words // 145} min)")
+
+            print("\n📧  Generating and sending Deep Dive email...")
+            try:
+                dd_subject, dd_html = generate_deep_dive_email(deep_dive, today_pretty)
+                (OUTPUT_DIR / f"deepdive-{today}-email.html").write_text(dd_html)
+                send_email_digest(dd_subject, dd_html)
+            except Exception as e:
+                log_error("generate_deep_dive_email/send_email_digest (deep dive)", e, today)
+                print("  ⚠ Deep Dive email failed — continuing")
+
+            print("\n🔊  Converting Deep Dive to audio...")
+            try:
+                produce_episode(
+                    deep_dive, f"deepdive-{today}", f"Deep Dive — {today_pretty}",
+                    feed_path=DEEP_DIVE_RSS_FILE,
+                    podcast_title=DEEP_DIVE_TITLE,
+                    podcast_description=DEEP_DIVE_DESCRIPTION,
+                    feed_link=DEEP_DIVE_URL,
+                    image_key="deepdive.jpg",
+                    voice=DEEP_DIVE_VOICE,
+                )
+                deep_dive_published = True
+            except Exception as e:
+                log_error("produce_episode (deep dive)", e, today)
+                print(f"  ✗ Deep Dive episode NOT published — {e}")
+                print("  ⚠ Continuing to GitHub push without this episode")
+        elif deep_dive:
+            print(f"  · {deep_dive.strip()}")
+
     print("\n📻  Feed updated")
-    save_seen_titles(seen_titles | new_titles)
+    save_seen_titles(seen_titles | new_titles | rd_new_titles)
 
     # Write status.json for remote monitoring
     status = {
@@ -1160,6 +1426,7 @@ def main():
         "regular_brief": bool(regular_articles),
         "special_brief": bool(event_articles and active_events),
         "active_events": [e["name"] for e in active_events],
+        "deep_dive": deep_dive_published,
         "status": "ok",
     }
     (PROJECT_DIR / "status.json").write_text(json.dumps(status, indent=2))
@@ -1180,7 +1447,9 @@ def main():
 
     done_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"\n✅  Done at {done_ts}")
-    print(f"    {GITHUB_PAGES_URL}/feed.xml\n")
+    print(f"    {GITHUB_PAGES_URL}/feed.xml")
+    if deep_dive_published:
+        print(f"    {DEEP_DIVE_URL}")
     print(f"{'─' * 52}\n")
 
 if __name__ == "__main__":
