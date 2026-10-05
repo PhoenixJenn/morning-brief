@@ -42,5 +42,13 @@
       <guid isPermaLink="false">00e8715687bbc9958598e2ffcd88dd21</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Deep Dive — Monday, October 05</title>
+      <pubDate>Mon, 05 Oct 2026 05:40:48 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/deepdive-2026-10-05.mp3" length="7524864" type="audio/mpeg"/>
+      <guid isPermaLink="false">831eaf86ef39ffc3faa7166cddd42fa6</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
