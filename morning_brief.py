@@ -59,7 +59,7 @@ MAX_PER_FEED  = 10     # max articles pulled per feed
 TTS_VOICE     = "nova"    # OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
 TTS_MODEL     = "tts-1"  # tts-1 (~$13/mo daily) or tts-1-hd (higher quality, ~$26/mo)
 TTS_SPEED     = 1.4      # 1.0 = normal, 1.25 = slightly faster, 1.5 = fast
-DEEP_DIVE_VOICE = "onyx"  # deep male voice — distinct from Morning Brief's nova
+DEEP_DIVE_VOICE = "nova"  # same voice as Morning Brief
 OPENAI_CHUNK  = 4000     # OpenAI TTS max chars per request
 
 # ─── RSS Feeds by Topic ───────────────────────────────────────────────────────

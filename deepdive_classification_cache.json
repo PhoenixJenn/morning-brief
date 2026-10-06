@@ -286,5 +286,137 @@
   "ep:4879c5bc00c0c955e3fbcc3954a1fcdf:10": {
     "category": "misc",
     "subcategory": "Misc"
+  },
+  "theme:f7d2bcebccfacaf6": {
+    "category": "xr",
+    "subcategory": "Platform & Ecosystem"
+  },
+  "theme:d5c4636464f6af46": {
+    "category": "ai",
+    "subcategory": "Business & Economics"
+  },
+  "theme:564e63b0dc9c985f": {
+    "category": "ai",
+    "subcategory": "Safety & Security"
+  },
+  "theme:8f8c1e6556d8e107": {
+    "category": "ai",
+    "subcategory": "Business & Economics"
+  },
+  "theme:9830ef683945b02b": {
+    "category": "ai",
+    "subcategory": "Infrastructure & Compute"
+  },
+  "theme:3b1d3d6c3c1eebe1": {
+    "category": "ai",
+    "subcategory": "Policy & Regulation"
+  },
+  "theme:81f63515729bd2f9": {
+    "category": "ai",
+    "subcategory": "Safety & Security"
+  },
+  "theme:31f969c7b2e1f133": {
+    "category": "ai",
+    "subcategory": "Safety & Security"
+  },
+  "theme:729f69775e5e700b": {
+    "category": "ai",
+    "subcategory": "Safety & Security"
+  },
+  "theme-ctx:90908caa1f94e9b3": {
+    "category": "ai",
+    "subcategory": "Policy & Regulation"
+  },
+  "theme-ctx:df70ab335c030312": {
+    "category": "misc",
+    "subcategory": "Misc"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:0": {
+    "category": "ai",
+    "subcategory": "Architecture & Patterns"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:1": {
+    "category": "ai",
+    "subcategory": "Architecture & Patterns"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:2": {
+    "category": "ai",
+    "subcategory": "Architecture & Patterns"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:3": {
+    "category": "ai",
+    "subcategory": "Architecture & Patterns"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:4": {
+    "category": "ai",
+    "subcategory": "Model Releases"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:5": {
+    "category": "ai",
+    "subcategory": "Architecture & Patterns"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:6": {
+    "category": "ai",
+    "subcategory": "Architecture & Patterns"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:7": {
+    "category": "ai",
+    "subcategory": "Safety & Security"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:8": {
+    "category": "ai",
+    "subcategory": "Model Releases"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:9": {
+    "category": "ai",
+    "subcategory": "Architecture & Patterns"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:10": {
+    "category": "ai",
+    "subcategory": "Architecture & Patterns"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:11": {
+    "category": "ai",
+    "subcategory": "Model Releases"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:12": {
+    "category": "ai",
+    "subcategory": "Frameworks & Tooling"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:13": {
+    "category": "misc",
+    "subcategory": "Misc"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:14": {
+    "category": "ai",
+    "subcategory": "Frameworks & Tooling"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:15": {
+    "category": "ai",
+    "subcategory": "Frameworks & Tooling"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:16": {
+    "category": "ai",
+    "subcategory": "Frameworks & Tooling"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:17": {
+    "category": "ai",
+    "subcategory": "Frameworks & Tooling"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:18": {
+    "category": "ai",
+    "subcategory": "Misc"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:19": {
+    "category": "ai",
+    "subcategory": "Architecture & Patterns"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:20": {
+    "category": "ai",
+    "subcategory": "Architecture & Patterns"
+  },
+  "ep:00e8715687bbc9958598e2ffcd88dd21:21": {
+    "category": "ai",
+    "subcategory": "Misc"
   }
 }
