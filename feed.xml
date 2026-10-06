@@ -185,13 +185,7 @@
   
     
   
-    <item>
-      <title>Morning Brief — Tuesday, September 22</title>
-      <pubDate>Tue, 22 Sep 2026 05:36:38 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-09-22.mp3" length="12683904" type="audio/mpeg"/>
-      <guid isPermaLink="false">79af72fddb7d2ef80e9ed7da57d7c55f</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Wednesday, September 23</title>
@@ -278,6 +272,14 @@
       <pubDate>Mon, 05 Oct 2026 05:38:07 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-05.mp3" length="15792384" type="audio/mpeg"/>
       <guid isPermaLink="false">e64fc8089426d0b3f27341a9c415e490</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, October 06</title>
+      <pubDate>Tue, 06 Oct 2026 05:38:58 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-06.mp3" length="15911808" type="audio/mpeg"/>
+      <guid isPermaLink="false">444345ae693f98d4e7bcd0fa8cc7af65</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
