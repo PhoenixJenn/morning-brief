@@ -1,8 +1,8 @@
 {
-  "date": "2026-10-09",
-  "run_at": "2026-10-09 05:40:39",
+  "date": "2026-10-12",
+  "run_at": "2026-10-12 05:41:07",
   "regular_brief": true,
-  "special_brief": false,
+  "special_brief": true,
   "active_events": [
     "New York Comic Con 2026"
   ],
