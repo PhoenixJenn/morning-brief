@@ -207,21 +207,9 @@
   
     
   
-    <item>
-      <title>Morning Brief — Monday, October 05</title>
-      <pubDate>Mon, 05 Oct 2026 05:38:07 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-05.mp3" length="15792384" type="audio/mpeg"/>
-      <guid isPermaLink="false">e64fc8089426d0b3f27341a9c415e490</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Tuesday, October 06</title>
-      <pubDate>Tue, 06 Oct 2026 05:38:58 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-06.mp3" length="15911808" type="audio/mpeg"/>
-      <guid isPermaLink="false">444345ae693f98d4e7bcd0fa8cc7af65</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Wednesday, October 07</title>
@@ -292,6 +280,22 @@
       <pubDate>Fri, 16 Oct 2026 05:38:29 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-16.mp3" length="16896000" type="audio/mpeg"/>
       <guid isPermaLink="false">2f06f34ad7d55b29f0bbcac7dfe150fd</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, October 20</title>
+      <pubDate>Tue, 20 Oct 2026 05:37:54 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-20.mp3" length="15111168" type="audio/mpeg"/>
+      <guid isPermaLink="false">307d7d44ec1ae8e22429bbe2ff399677</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Qualcomm Snapdragon Summit 2026, Adobe MAX 2026</title>
+      <pubDate>Tue, 20 Oct 2026 05:38:18 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-10-20-qualcomm-snapdragon-summ.mp3" length="1541376" type="audio/mpeg"/>
+      <guid isPermaLink="false">ee1427a0c2b6e42ace4dcd19bd474428</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
