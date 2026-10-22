@@ -211,21 +211,9 @@
   
     
   
-    <item>
-      <title>Morning Brief — Wednesday, October 07</title>
-      <pubDate>Wed, 07 Oct 2026 05:39:34 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-07.mp3" length="14439168" type="audio/mpeg"/>
-      <guid isPermaLink="false">4e848964239222bfcfac73d4776648ed</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Thursday, October 08</title>
-      <pubDate>Thu, 08 Oct 2026 05:38:09 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-08.mp3" length="16074624" type="audio/mpeg"/>
-      <guid isPermaLink="false">a8cd9bc2099e664e0a16bd178d0d6a32</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Friday, October 09</title>
@@ -311,6 +299,22 @@
       <title>Special Brief — Qualcomm Snapdragon Summit 2026, Adobe MAX 2026</title>
       <pubDate>Wed, 21 Oct 2026 20:32:38 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-10-21-qualcomm-snapdragon-summ.mp3" length="2532096" type="audio/mpeg"/>
+      <guid isPermaLink="false">ee1427a0c2b6e42ace4dcd19bd474428</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Thursday, October 22</title>
+      <pubDate>Thu, 22 Oct 2026 05:38:39 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-22.mp3" length="15623040" type="audio/mpeg"/>
+      <guid isPermaLink="false">e8d826423386c38cfbbcf1508a62aafc</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Qualcomm Snapdragon Summit 2026, Adobe MAX 2026</title>
+      <pubDate>Thu, 22 Oct 2026 05:39:09 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-10-22-qualcomm-snapdragon-summ.mp3" length="2218752" type="audio/mpeg"/>
       <guid isPermaLink="false">ee1427a0c2b6e42ace4dcd19bd474428</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
