@@ -298,5 +298,21 @@
       <guid isPermaLink="false">ee1427a0c2b6e42ace4dcd19bd474428</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
+  
+    <item>
+      <title>Morning Brief — Wednesday, October 21</title>
+      <pubDate>Wed, 21 Oct 2026 20:32:37 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-21.mp3" length="14747904" type="audio/mpeg"/>
+      <guid isPermaLink="false">9b209b31c34d607277e0b82cd2e26b11</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Qualcomm Snapdragon Summit 2026, Adobe MAX 2026</title>
+      <pubDate>Wed, 21 Oct 2026 20:32:38 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-10-21-qualcomm-snapdragon-summ.mp3" length="2532096" type="audio/mpeg"/>
+      <guid isPermaLink="false">ee1427a0c2b6e42ace4dcd19bd474428</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
   </channel>
 </rss>
