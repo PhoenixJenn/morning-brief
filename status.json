@@ -1,12 +1,9 @@
 {
-  "date": "2026-10-23",
-  "run_at": "2026-10-23 05:44:51",
+  "date": "2026-10-25",
+  "run_at": "2026-10-25 15:44:30",
   "regular_brief": true,
-  "special_brief": true,
-  "active_events": [
-    "Qualcomm Snapdragon Summit 2026",
-    "Adobe MAX 2026"
-  ],
-  "deep_dive": false,
+  "special_brief": false,
+  "active_events": [],
+  "deep_dive": true,
   "status": "ok"
 }

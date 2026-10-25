@@ -215,13 +215,7 @@
   
     
   
-    <item>
-      <title>Morning Brief — Friday, October 09</title>
-      <pubDate>Fri, 09 Oct 2026 05:37:51 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-09.mp3" length="15853440" type="audio/mpeg"/>
-      <guid isPermaLink="false">bf1506866d154557cd6cb743f5bae2dc</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Monday, October 12</title>
@@ -332,6 +326,14 @@
       <pubDate>Fri, 23 Oct 2026 05:45:14 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-10-23-qualcomm-snapdragon-summ.mp3" length="1923072" type="audio/mpeg"/>
       <guid isPermaLink="false">ee1427a0c2b6e42ace4dcd19bd474428</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Sunday, October 25</title>
+      <pubDate>Sun, 25 Oct 2026 15:41:49 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-25.mp3" length="13866240" type="audio/mpeg"/>
+      <guid isPermaLink="false">9fe08cb8a5304f7e46a28bbbf24512a2</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
