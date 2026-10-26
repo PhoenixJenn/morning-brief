@@ -217,21 +217,9 @@
   
     
   
-    <item>
-      <title>Morning Brief — Monday, October 12</title>
-      <pubDate>Mon, 12 Oct 2026 05:38:01 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-12.mp3" length="16358400" type="audio/mpeg"/>
-      <guid isPermaLink="false">f69b9b48fecb6d17ee8160a63f6ba1ed</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — New York Comic Con 2026</title>
-      <pubDate>Mon, 12 Oct 2026 05:38:30 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-10-12-new-york-comic-con-2026.mp3" length="1809408" type="audio/mpeg"/>
-      <guid isPermaLink="false">22d11e994b03e433f8e736e64233f5d4</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Tuesday, October 13</title>
@@ -334,6 +322,14 @@
       <pubDate>Sun, 25 Oct 2026 15:41:49 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-25.mp3" length="13866240" type="audio/mpeg"/>
       <guid isPermaLink="false">9fe08cb8a5304f7e46a28bbbf24512a2</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Monday, October 26</title>
+      <pubDate>Mon, 26 Oct 2026 05:38:38 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-26.mp3" length="18062592" type="audio/mpeg"/>
+      <guid isPermaLink="false">a877c239f145dea4bbc66c6bec63e491</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
