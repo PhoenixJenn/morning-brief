@@ -227,13 +227,7 @@
   
     
   
-    <item>
-      <title>Morning Brief — Friday, October 16</title>
-      <pubDate>Fri, 16 Oct 2026 05:38:29 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-16.mp3" length="16896000" type="audio/mpeg"/>
-      <guid isPermaLink="false">2f06f34ad7d55b29f0bbcac7dfe150fd</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Tuesday, October 20</title>
@@ -328,6 +322,22 @@
       <pubDate>Thu, 29 Oct 2026 05:38:08 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-29.mp3" length="16438272" type="audio/mpeg"/>
       <guid isPermaLink="false">c5d7bb72d8f453584d0ade3f0935b5cc</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Monday, November 02</title>
+      <pubDate>Mon, 02 Nov 2026 05:38:24 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-11-02.mp3" length="15497088" type="audio/mpeg"/>
+      <guid isPermaLink="false">afe64f80ade9fd34c9742770b65fb4af</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Special Brief — Anthropic IPO</title>
+      <pubDate>Mon, 02 Nov 2026 05:38:40 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-11-02-anthropic-ipo.mp3" length="883584" type="audio/mpeg"/>
+      <guid isPermaLink="false">864a5ab4a78517051dbe2a3b83f826b8</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
