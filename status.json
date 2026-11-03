@@ -1,8 +1,8 @@
 {
-  "date": "2026-11-02",
-  "run_at": "2026-11-02 05:42:11",
+  "date": "2026-11-03",
+  "run_at": "2026-11-03 05:42:50",
   "regular_brief": true,
-  "special_brief": true,
+  "special_brief": false,
   "active_events": [
     "Anthropic IPO"
   ],

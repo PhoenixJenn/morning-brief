@@ -229,21 +229,9 @@
   
     
   
-    <item>
-      <title>Morning Brief — Tuesday, October 20</title>
-      <pubDate>Tue, 20 Oct 2026 05:37:54 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-20.mp3" length="15111168" type="audio/mpeg"/>
-      <guid isPermaLink="false">307d7d44ec1ae8e22429bbe2ff399677</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — Qualcomm Snapdragon Summit 2026, Adobe MAX 2026</title>
-      <pubDate>Tue, 20 Oct 2026 05:38:18 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-10-20-qualcomm-snapdragon-summ.mp3" length="1541376" type="audio/mpeg"/>
-      <guid isPermaLink="false">ee1427a0c2b6e42ace4dcd19bd474428</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Wednesday, October 21</title>
@@ -338,6 +326,14 @@
       <pubDate>Mon, 02 Nov 2026 05:38:40 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-11-02-anthropic-ipo.mp3" length="883584" type="audio/mpeg"/>
       <guid isPermaLink="false">864a5ab4a78517051dbe2a3b83f826b8</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Tuesday, November 03</title>
+      <pubDate>Tue, 03 Nov 2026 05:40:17 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-11-03.mp3" length="16161408" type="audio/mpeg"/>
+      <guid isPermaLink="false">860d1a92e1e53425bae0af08b85ac7ac</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
