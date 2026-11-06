@@ -237,37 +237,13 @@
   
     
   
-    <item>
-      <title>Morning Brief — Thursday, October 22</title>
-      <pubDate>Thu, 22 Oct 2026 05:38:39 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-22.mp3" length="15623040" type="audio/mpeg"/>
-      <guid isPermaLink="false">e8d826423386c38cfbbcf1508a62aafc</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — Qualcomm Snapdragon Summit 2026, Adobe MAX 2026</title>
-      <pubDate>Thu, 22 Oct 2026 05:39:09 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-10-22-qualcomm-snapdragon-summ.mp3" length="2218752" type="audio/mpeg"/>
-      <guid isPermaLink="false">ee1427a0c2b6e42ace4dcd19bd474428</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Friday, October 23</title>
-      <pubDate>Fri, 23 Oct 2026 05:45:13 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-23.mp3" length="14937600" type="audio/mpeg"/>
-      <guid isPermaLink="false">30aa90099b89af5442d65a4fd703a852</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Special Brief — Qualcomm Snapdragon Summit 2026, Adobe MAX 2026</title>
-      <pubDate>Fri, 23 Oct 2026 05:45:14 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/special-2026-10-23-qualcomm-snapdragon-summ.mp3" length="1923072" type="audio/mpeg"/>
-      <guid isPermaLink="false">ee1427a0c2b6e42ace4dcd19bd474428</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Sunday, October 25</title>
@@ -330,6 +306,14 @@
       <pubDate>Wed, 04 Nov 2026 05:38:46 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-11-04.mp3" length="13605888" type="audio/mpeg"/>
       <guid isPermaLink="false">609b190b347ebb607f5072a977060ab5</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Friday, November 06</title>
+      <pubDate>Fri, 06 Nov 2026 05:49:27 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-11-06.mp3" length="16406784" type="audio/mpeg"/>
+      <guid isPermaLink="false">be2fa62bd5db871d1216f4fdf67447c2</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
