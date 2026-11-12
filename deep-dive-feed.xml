@@ -47,37 +47,13 @@
   
     
   
-    <item>
-      <title>Deep Dive — Sunday, October 25</title>
-      <pubDate>Sun, 25 Oct 2026 15:44:30 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/deepdive-2026-10-25.mp3" length="7216896" type="audio/mpeg"/>
-      <guid isPermaLink="false">c05e3ff386113f6843ce9c46a793c6de</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Deep Dive — Monday, October 26</title>
-      <pubDate>Mon, 26 Oct 2026 05:41:04 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/deepdive-2026-10-26.mp3" length="6981504" type="audio/mpeg"/>
-      <guid isPermaLink="false">ef61087715083b1303d1dbbc2bff95dd</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Deep Dive — Wednesday, October 28</title>
-      <pubDate>Wed, 28 Oct 2026 07:55:41 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/deepdive-2026-10-28.mp3" length="7289856" type="audio/mpeg"/>
-      <guid isPermaLink="false">3aa16fb37eebe123f0814c09fbac95e6</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Deep Dive — Thursday, October 29</title>
-      <pubDate>Thu, 29 Oct 2026 05:41:00 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/deepdive-2026-10-29.mp3" length="7658880" type="audio/mpeg"/>
-      <guid isPermaLink="false">88ee4f01a9e5faf64d9ec857115634f5</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Deep Dive — Monday, November 02</title>
@@ -108,6 +84,14 @@
       <pubDate>Fri, 06 Nov 2026 05:53:45 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/deepdive-2026-11-06.mp3" length="7936896" type="audio/mpeg"/>
       <guid isPermaLink="false">73fad9f73033e7f3f9e96cf4de0f60d3</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Deep Dive — Thursday, November 12</title>
+      <pubDate>Thu, 12 Nov 2026 08:43:19 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/deepdive-2026-11-12.mp3" length="7516416" type="audio/mpeg"/>
+      <guid isPermaLink="false">a58d34ccde067569eeba559cdab9f9e0</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>

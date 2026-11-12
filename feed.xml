@@ -245,37 +245,13 @@
   
     
   
-    <item>
-      <title>Morning Brief — Sunday, October 25</title>
-      <pubDate>Sun, 25 Oct 2026 15:41:49 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-25.mp3" length="13866240" type="audio/mpeg"/>
-      <guid isPermaLink="false">9fe08cb8a5304f7e46a28bbbf24512a2</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Monday, October 26</title>
-      <pubDate>Mon, 26 Oct 2026 05:38:38 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-26.mp3" length="18062592" type="audio/mpeg"/>
-      <guid isPermaLink="false">a877c239f145dea4bbc66c6bec63e491</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Wednesday, October 28</title>
-      <pubDate>Wed, 28 Oct 2026 07:52:39 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-28.mp3" length="16473984" type="audio/mpeg"/>
-      <guid isPermaLink="false">4862af22abb42364e95974fd66d94d8a</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
-    <item>
-      <title>Morning Brief — Thursday, October 29</title>
-      <pubDate>Thu, 29 Oct 2026 05:38:08 +0000</pubDate>
-      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-10-29.mp3" length="16438272" type="audio/mpeg"/>
-      <guid isPermaLink="false">c5d7bb72d8f453584d0ade3f0935b5cc</guid>
-      <itunes:duration>2700</itunes:duration>
-    </item>
+    
   
     <item>
       <title>Morning Brief — Monday, November 02</title>
@@ -314,6 +290,14 @@
       <pubDate>Fri, 06 Nov 2026 05:49:27 +0000</pubDate>
       <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-11-06.mp3" length="16406784" type="audio/mpeg"/>
       <guid isPermaLink="false">be2fa62bd5db871d1216f4fdf67447c2</guid>
+      <itunes:duration>2700</itunes:duration>
+    </item>
+  
+    <item>
+      <title>Morning Brief — Thursday, November 12</title>
+      <pubDate>Thu, 12 Nov 2026 08:40:17 +0000</pubDate>
+      <enclosure url="https://pub-f3e7015d6403424da2cfcf8b1f9060ac.r2.dev/output/brief-2026-11-12.mp3" length="17643648" type="audio/mpeg"/>
+      <guid isPermaLink="false">ecc531e454b5b71b39bb7bbcf94cb040</guid>
       <itunes:duration>2700</itunes:duration>
     </item>
   </channel>
